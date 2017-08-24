@@ -1,62 +1,58 @@
 #!/bin/bash
 
 set -e
+. ./include.sh
+. ./text_edit.sh
 
-#加载头文件
-. ./dbginfo.sh
 
 function format_manifest()
 {
-	debug_info "format_manifest"
-}
+	debug_error "format_manifest"
 
-function get_platform_name()
-{
-	debug_info "get_platform_name"
-}
-
-function load_config_byname()
-{
-	debug_info "load_config_byname"
+	sed -i '/^#.*/d' $1
+	sed -i '/^[[:space:]]*$/d' $1
+	sed -i '/^\/\/.*/d' $1
 }
 
 function parse_manifest()
 {
-	debug_info "parse_manifest"
-	local -A map=()
+	debug_error "parse_manifest"
 
 	while read line; do
 		key=`echo $line | awk -F '=' '{print $1}'`
 		value=`echo $line | awk -F '=' '{print $2}'`
 		debug_info "key=$key, value=$value"
-		map["$key"]=$value
+		menifestmap["$key"]=$value
 	done < $1
 
-	for key in ${!map[@]}  
-	do  
-		debug_info ${map[$key]}  
-	done
-	return $map
+	debug_map
 }
 
-function update_source_bymap()
+function load_local_config()
 {
-	debug_info "update_source_bymap"
+	debug_error "load_config_byname"
+
+	platform_name="${menifestmap["PRODUCT_NAME"]}"
+	debug_warn "PRODUCT_NAME = $platform_name}"
+	
+}
+
+function update_local_code()
+{
+	debug_error "update_source_bymap"
 }
 
 function init_update_source()
 {
-	debug_info "init_update_source"
+	debug_error "init_update_source"
+
 	format_manifest $1
-	platform_name=$(get_platform_name $1)
+
+	parse_manifest $1
 	
-	load_config_byname $platform_name
+	load_local_config
 
-	declare -A map=()
-#	parse_manifest $1
-	map=$(parse_manifest $1)
-
-	update_source_bymap $map
+	update_local_code
 }
 
 init_update_source $1
