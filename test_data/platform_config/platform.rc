@@ -1,0 +1,5 @@
+
+#h2 平台
+H2_DOLPHIN_CANTV_H2_PATH= /home/jiangxiujie/github/yun-update-source/test_data/dolphin_cantv_h2.mk
+H2_EXTERNAL_PRODUCT_PATH=/home/jiangxiujie/github/yun-update-source/test_data/external_product.txt
+H2_CUSTOM_IR_PATH=/home/jiangxiujie/github/yun-update-source/test_data/
