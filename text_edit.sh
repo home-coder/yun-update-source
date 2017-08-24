@@ -49,6 +49,12 @@ function write_kl_file()
 	}'
 }
 
+function write_efex_file()
+{
+
+}
+
 #write_mk_file
 #write_txt_file
 #write_kl_file
+write_efex_file
