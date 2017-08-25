@@ -1,11 +1,6 @@
 #!/bin/bash
 
-#
-#@PARAM: 1:path, 文件路径	如"dolphin_cantv_h2.mk"
-#		 2:key,  相应key值  如"PRODUCT_MANUFACTURER"
-#		 3:value,相应value  如"忆典"
-#@FUNC : 功能实现主要说明   如 用xxxx表示替换结果
-#
+. ./include.sh
 
 #
 #@PARAM: 1:path
@@ -18,14 +13,13 @@ function write_mk_file()
 	param_file=$1
 	param_key=$2
 	param_value=$3
-	echo $param_file $param_key $param_value
+	debug_warn $param_file $param_key $param_value
 
 	grep -r ^$param_key $param_file
 	if [ $? -eq 0 ]; then
 		sed -i '/^'$param_key'/s/\(.*\):=.*/\1:= '$param_value'/g' $param_file
 	else
 		add_prop="$param_key := $param_value"
-		echo $add_prop
 		echo $add_prop >> $param_file
 	fi
 }
@@ -41,7 +35,7 @@ function write_txt_file()
 	param_file=$1
 	param_key=$2
 	param_value=$3
-	echo $param_file $param_key $param_value
+	debug_warn $param_file $param_key $param_value
 	
 	grep -r ^$param_key $param_file
 	if [ $? -eq 0 ]; then
@@ -97,17 +91,31 @@ function write_kl_file()
 
 #
 #@PARAM: 1:path
-#		 2:key
-#		 3:value
+#		 2:item fex文件中括号内选项 boot_init_gpi
+#		 3:node 为item标签下的子项，如pin脚
+#		 4:value
 #@FUNC : 
 #
-function write_efex_file()
+function write_fex_file()
 {
-	echo -----
+	debug_warn "write_fex_file"
 }
 
+#
+#@PARAM: 1:path
+#		 2:key 
+#		 4:value
+#@FUNC : 
+#
+function write_cfg_file()
+{
+	debug_warn "write_cfg_file"
+}
+
+
 #测试用例
-write_mk_file "dolphin_cantv_h2.mk"  "PRODUCT_MANUFACTURER"  "忆典"
-write_txt_file "external_product.txt"  "BOX"  "迪优美特222=东莞市智而浦实业有限公司=4007772628=3375381074@qq.com"
-write_kl_file "custom_ir_1044.kl" "128" "POWER   WAKE"
-#write_efex_file
+#write_mk_file "dolphin_cantv_h2.mk"  "PRODUCT_MANUFACTURER"  "忆典"
+#write_txt_file "external_product.txt"  "BOX"  "迪优美特222=东莞市智而浦实业有限公司=4007772628=3375381074@qq.com"
+#write_kl_file "custom_ir_1044.kl" "128" "POWER   WAKE"
+#write_fex_file
+#write_cfg_file
