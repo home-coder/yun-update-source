@@ -91,14 +91,21 @@ function write_kl_file()
 
 #
 #@PARAM: 1:path
-#		 2:item fex文件中括号内选项 boot_init_gpi
-#		 3:node 为item标签下的子项，如pin脚
+#		 2:section fex文件中括号内选项 boot_init_gpi
+#		 3:item 为item标签下的子项，如pin脚
 #		 4:value
 #@FUNC : 
 #
 function write_fex_file()
 {
 	debug_warn "write_fex_file"
+	param_file=$1
+	param_section=$2
+	param_item=$3
+	param_value=$4
+
+
+	#awk -F '=' '/\['${param_section}'\]/{a=1 gsub(" |\t","",$1)} (a==1 && "'${param_item}'"==$1){gsub($2,"'${param_value}'"); a=0} {print $0 > "'${param_file}'"}' ${param_file}
 }
 
 #
@@ -117,5 +124,6 @@ function write_cfg_file()
 #write_mk_file "dolphin_cantv_h2.mk"  "PRODUCT_MANUFACTURER"  "忆典"
 #write_txt_file "external_product.txt"  "BOX"  "迪优美特222=东莞市智而浦实业有限公司=4007772628=3375381074@qq.com"
 #write_kl_file "custom_ir_1044.kl" "128" "POWER   WAKE"
-#write_fex_file
+write_fex_file "sys_config.fex" "boot_init_gpio" "gpio1" "222222222222222"
+#"port:PA12<1><default><default><1>"
 #write_cfg_file
