@@ -4,7 +4,13 @@ set -e
 . ./include.sh
 . ./text_edit.sh
 
-#格式化目的：方便map的生成
+#@FUNC：方便map的生成
+#
+#去掉所有#开头行
+#去掉所有空行
+#去掉所有//开头的行
+#去掉行首空格和tab
+#去掉行尾空格和tab
 function format_manifest()
 {
 	debug_error "format_manifest"
@@ -12,6 +18,8 @@ function format_manifest()
 	sed -i '/^#.*/d' $1
 	sed -i '/^[[:space:]]*$/d' $1
 	sed -i '/^\/\/.*/d' $1
+	sed -i 's/^[ \t]*//g' $1
+	sed -i 's/[ \t]*$//g' $1
 }
 
 #将清单文件保存为map集合，便于存取
