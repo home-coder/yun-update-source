@@ -15,11 +15,9 @@
 #
 function write_mk_file() 
 {
-	#test
-	echo "write_mk_file"
-	param_file="dolphin_cantv_h2.mk"
-	param_key="PRODUCT_MANUFACTURER"
-	param_value="忆典"
+	param_file=$1
+	param_key=$2
+	param_value=$3
 	echo $param_file $param_key $param_value
 
 	grep -r ^$param_key $param_file
@@ -40,9 +38,9 @@ function write_mk_file()
 #
 function write_txt_file()
 {
-	param_file="external_product.txt"
-	param_key="BOX"
-	param_value="迪优美特222=东莞市智而浦实业有限公司=4007772628=3375381074@qq.com"
+	param_file=$1
+	param_key=$2
+	param_value=$3
 	echo $param_file $param_key $param_value
 	
 	grep -r ^$param_key $param_file
@@ -62,9 +60,9 @@ function write_txt_file()
 #
 function write_kl_file()
 {
-	param_file="custom_ir_1044.kl"
-	param_key="128"
-	param_value="POWER   WAKE"
+	param_file=$1
+	param_key=$2
+	param_value=$3
 
 	local num
 	key_num=$(cat $param_file|awk '{for(i=1; i<=NF; i++) print $i}')
@@ -102,7 +100,7 @@ function write_efex_file()
 	echo -----
 }
 
-#write_mk_file
-#write_txt_file
-#write_kl_file
+write_mk_file "dolphin_cantv_h2.mk"  "PRODUCT_MANUFACTURER"  "忆典"
+write_txt_file "external_product.txt"  "BOX"  "迪优美特222=东莞市智而浦实业有限公司=4007772628=3375381074@qq.com"
+write_kl_file "custom_ir_1044.kl" "128" "POWER   WAKE"
 #write_efex_file
