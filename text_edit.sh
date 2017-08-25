@@ -1,17 +1,17 @@
 #!/bin/bash
 
 #
-#@PARAM: 1:path, "dolphin_cantv_h2.mk"
-#		 2:key, "PRODUCT_MANUFACTURER"
-#		 3:value, "忆典"
-#@FUNC : 功能实现主要说明
+#@PARAM: 1:path, 文件路径	如"dolphin_cantv_h2.mk"
+#		 2:key,  相应key值  如"PRODUCT_MANUFACTURER"
+#		 3:value,相应value  如"忆典"
+#@FUNC : 功能实现主要说明   如 用xxxx表示替换结果
 #
 
 #
 #@PARAM: 1:path
 #		 2:key
 #		 3:value
-#@FUNC : 根据key对应的value比较替换path中的文件相应的变量
+#@FUNC : 用 1:= $param_value表示替换结果, 如果不存在则追加 >>
 #
 function write_mk_file() 
 {
@@ -34,7 +34,7 @@ function write_mk_file()
 #@PARAM: 1:path
 #		 2:key
 #		 3:value
-#@FUNC : 根据BOX将后面的值替换掉，如果是新的就追加txt文件尾
+#@FUNC : 用'$param_key'='$param_value'表示替换结果，如果不存在则追加 >>
 #
 function write_txt_file()
 {
@@ -56,7 +56,7 @@ function write_txt_file()
 #@PARAM: 1:path
 #		 2:key
 #		 3:value
-#@FUNC : 根据参数param_key判断是否是新的num，如果不是则替换key_code，如果是则追加到kl文件末尾
+#@FUNC : 用'key' '$param_key'    '$sed_value'表示替换结果，如果不存在则追加 >>
 #
 function write_kl_file()
 {
@@ -95,11 +95,18 @@ function write_kl_file()
 	fi
 }
 
+#
+#@PARAM: 1:path
+#		 2:key
+#		 3:value
+#@FUNC : 
+#
 function write_efex_file()
 {
 	echo -----
 }
 
+#测试用例
 write_mk_file "dolphin_cantv_h2.mk"  "PRODUCT_MANUFACTURER"  "忆典"
 write_txt_file "external_product.txt"  "BOX"  "迪优美特222=东莞市智而浦实业有限公司=4007772628=3375381074@qq.com"
 write_kl_file "custom_ir_1044.kl" "128" "POWER   WAKE"
