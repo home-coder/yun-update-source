@@ -1,7 +1,5 @@
 #!/bin/bash
 
-. ./include.sh
-
 #
 #@PARAM: 1:path
 #		 2:key
@@ -121,6 +119,7 @@ function write_cfg_file()
 
 
 #测试用例
+. ./include.sh
 #write_mk_file "dolphin_cantv_h2.mk"  "PRODUCT_MANUFACTURER"  "忆典"
 #write_txt_file "external_product.txt"  "BOX"  "迪优美特222=东莞市智而浦实业有限公司=4007772628=3375381074@qq.com"
 #write_kl_file "custom_ir_1044.kl" "128" "POWER   WAKE"
