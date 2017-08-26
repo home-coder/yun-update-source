@@ -2,7 +2,7 @@
 
 set -e
 . ./include.sh
-. ./text_edit.sh
+. ./edit_util.sh
 
 #@FUNC：方便map的生成
 #
@@ -44,11 +44,16 @@ function load_local_config()
 {
 	debug_error "load_config_byname"
 	
-	#TODO 编译服务器切分支
+	#根据客户名字, 从配置文件"custom_branch_platform"中读取对应的分支和平台
+	manu_name="${menifestmap["PRODUCT_MANUFACTURER"]}"
+	debug_warn "PRODUCT_MANUFACTURER = $manu_name"
+	set_branch_and_platform $manu_name 
 
-	platform_name="${menifestmap["PRODUCT_NAME"]}"
-	debug_warn "PRODUCT_NAME = $platform_name}"
-	#TODO 根据名字加载不同的rc配置,将变量export	
+	#TODO 编译服务器切分支,
+
+	#TODO 根据平台加载批量修改文件的路径
+	debug_info $CURENT_PLATFORM
+	#config_platform_file_path
 }
 
 #修改平台代码的方法
