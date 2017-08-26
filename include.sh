@@ -8,6 +8,20 @@ export CURENT_PLATFORM
 
 CBP_PATH="custom_branch_platform"
 
+#export
+#export
+#export
+#export
+#export
+#export
+#export
+#export
+#export
+#export
+#export
+#export
+
+
 function debug_error()
 {
 	echo -e "\033[47;31mERROR: $*\033[0m"
@@ -34,7 +48,7 @@ function debug_map()
 #
 #@PARAM: 客户的名字；@FUNC: 根据名字从配置"custom_branch_platform"获取对应的分支和硬件平台
 #
-function set_branch_and_platform()
+function get_branch_and_platform()
 {
 	debug_warn "set_branch_and_platform"
 	awk -F " " -v head="$1" '$1==head {print $2,$3}' $CBP_PATH
@@ -47,6 +61,11 @@ function set_branch_and_platform()
 	fi
 }
 
+function git_checkout_branch()
+{
+	debug_warn "git_checkout_branch"
+}
+
 function config_platform_file_path()
 {
 	debug_warn "config_platform_file_path"
@@ -57,4 +76,4 @@ function config_platform_file_path()
 #debug_info "----------------"
 #debug_warn "----------------"
 #debug_error "----------------"
-#set_branch_and_platform "一点"
+#get_branch_and_platform "一点"

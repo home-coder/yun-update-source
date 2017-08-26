@@ -124,6 +124,6 @@ function write_cfg_file()
 #write_mk_file "dolphin_cantv_h2.mk"  "PRODUCT_MANUFACTURER"  "忆典"
 #write_txt_file "external_product.txt"  "BOX"  "迪优美特222=东莞市智而浦实业有限公司=4007772628=3375381074@qq.com"
 #write_kl_file "custom_ir_1044.kl" "128" "POWER   WAKE"
-write_fex_file "sys_config.fex" "boot_init_gpio" "gpio1" "222222222222222"
+#write_fex_file "sys_config.fex" "boot_init_gpio" "gpio1" "222222222222222"
 #"port:PA12<1><default><default><1>"
 #write_cfg_file

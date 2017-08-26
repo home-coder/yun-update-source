@@ -3,6 +3,7 @@
 set -e
 . ./include.sh
 . ./edit_util.sh
+. ./process_server.sh
 
 #@FUNC：方便map的生成
 #
@@ -42,25 +43,27 @@ function parse_manifest()
 #包含：1.编译服务器根据如"亿典"切换到亿典分支, 2.将该分支相关需要改动的路径导出
 function load_local_config()
 {
-	debug_error "load_config_byname"
+	debug_error "load_local_config"
 	
 	#根据客户名字, 从配置文件"custom_branch_platform"中读取对应的分支和平台
 	manu_name="${menifestmap["PRODUCT_MANUFACTURER"]}"
 	debug_warn "PRODUCT_MANUFACTURER = $manu_name"
-	set_branch_and_platform $manu_name 
+	get_branch_and_platform $manu_name 
 
 	#TODO 编译服务器切分支,
+	git_checkout_branch 
 
 	#TODO 根据平台加载批量修改文件的路径
 	debug_info $CURENT_PLATFORM
-	#config_platform_file_path
+	config_platform_file_path
 }
 
 #修改平台代码的方法
 function update_local_code()
 {
-	debug_error "update_source_bymap"
+	debug_error "update_local_code"
 	#TODO 遍历map的value并做相应的处理:1.一般情况判断该写入上面export出来的路径中，2满足条件请求服务器并接收logo等资源，然后写入上面的路径中
+	call_process_server
 }
 
 #如果不出意外，直接调用我们原有的jeckens.sh就可以
