@@ -4,3 +4,4 @@ yun-update-source
 -----------------
 1.include.sh中debug_map不具备通用性，还只是menifest的map打印
 2.执行common.sh后到write_mk_file出不知原因的退出
+3.所有awk以空格分割的地方要考虑兼容tab键,防止那个地方是tab而引起错误

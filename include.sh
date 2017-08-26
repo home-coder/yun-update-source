@@ -3,24 +3,13 @@
 declare -A menifestmap=()
 export menifestmap
 
-export CURENT_BRANCH
-export CURENT_PLATFORM
+export CURENT_BRANCH  CURENT_PLATFORM
 
 CBP_PATH="custom_branch_platform"
 
-export LUNCH_MK
-export CUSTOM_IR_KL
+export LUNCH_MK	 CUSTOM_IR_KL	
 #export
 #export
-#export
-#export
-#export
-#export
-#export
-#export
-#export
-#export
-
 
 function debug_error()
 {
