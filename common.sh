@@ -57,7 +57,6 @@ function load_local_config()
 function update_local_code()
 {
 	debug_error "update_local_code"
-	#TODO 遍历map的value并做相应的处理:1.一般情况判断该写入上面export出来的路径中，2满足条件请求服务器并接收logo等资源，然后写入上面的路径中
 	call_process_server
 }
 

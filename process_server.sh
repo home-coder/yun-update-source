@@ -22,14 +22,15 @@ function handler_event()
 #
 function call_process_server()
 {
-	debug_warn "call_process_server"
+	debug_warn "call_process_server in"
 	for key in ${!menifestmap[@]}; do
 		handler_event $key
 	done
+	debug_warn"call_process_server over"
 }
 
 #测试用例
-. ./include.sh
-. ./edit_util.sh
+#. ./include.sh
+#. ./edit_util.sh
 #call_process_server
-creat_map ./test_data/manifest.prot && LUNCH_MK="./test_data/dolphin_cantv_h2.mk" && handler_event "platform" "H2"
+#creat_map ./test_data/manifest.prot && LUNCH_MK="./test_data/dolphin_cantv_h2.mk" && handler_event "platform" "H2"
