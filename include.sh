@@ -8,8 +8,8 @@ export CURENT_PLATFORM
 
 CBP_PATH="custom_branch_platform"
 
-#export
-#export
+export LUNCH_MK
+export CUSTOM_IR_KL
 #export
 #export
 #export
@@ -35,6 +35,16 @@ function debug_warn()
 function debug_info()
 {
 	echo -e "\033[47;30mINFO: $*\033[0m"
+}
+
+function creat_map()
+{
+	while read line; do
+		key=`echo $line | awk -F '=' '{print $1}'`
+		value=`echo $line | awk -F '=' '{print $2}'`
+		debug_info "key=$key, value=$value"
+		menifestmap["$key"]=$value
+	done < $1
 }
 
 function debug_map()
@@ -68,6 +78,14 @@ function git_checkout_branch()
 function config_platform_file_path()
 {
 	debug_warn "config_platform_file_path"
+	case "$CURENT_PLATFORM" in
+	"dolphin-cantv-h2")
+		LUNCH_MK="./test_data/dolphin_cantv_h2.mk"
+		CUSTOM_IR_KL="./test_data/custom_ir_"
+		#TODO其它待修改文件路径
+	;;
+	#TODO 其它平台配置
+	esac
 }
 
 

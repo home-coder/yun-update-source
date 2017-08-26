@@ -30,12 +30,7 @@ function parse_manifest()
 {
 	debug_error "parse_manifest"
 
-	while read line; do
-		key=`echo $line | awk -F '=' '{print $1}'`
-		value=`echo $line | awk -F '=' '{print $2}'`
-		debug_info "key=$key, value=$value"
-		menifestmap["$key"]=$value
-	done < $1
+	creat_map $1
 
 	debug_map
 }
