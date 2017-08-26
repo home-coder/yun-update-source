@@ -51,7 +51,6 @@ function debug_map()
 function get_branch_and_platform()
 {
 	debug_warn "set_branch_and_platform"
-	awk -F " " -v head="$1" '$1==head {print $2,$3}' $CBP_PATH
 	brpf=$(awk -F " " -v head="$1" '$1==head {print $2,$3}' $CBP_PATH)
 	if [ -n "$brpf" ]; then
 		CURENT_BRANCH=$(echo $brpf | awk '{print $1}')

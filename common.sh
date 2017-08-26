@@ -49,12 +49,12 @@ function load_local_config()
 	manu_name="${menifestmap["PRODUCT_MANUFACTURER"]}"
 	debug_warn "PRODUCT_MANUFACTURER = $manu_name"
 	get_branch_and_platform $manu_name 
+	debug_info "branch:$CURENT_BRANCH  platform:$CURENT_PLATFORM"
 
 	#TODO 编译服务器切分支,
 	git_checkout_branch 
 
 	#TODO 根据平台加载批量修改文件的路径
-	debug_info $CURENT_PLATFORM
 	config_platform_file_path
 }
 
