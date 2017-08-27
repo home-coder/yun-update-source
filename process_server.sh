@@ -29,11 +29,11 @@ function call_process_server()
 	for key in ${!menifestmap[@]}; do
 		handler_event $key
 	done
-	debug_warn"call_process_server over"
+	debug_warn "call_process_server over"
 }
 
 #测试用例
-#!/bin/bash
+##!/bin/bash
 #. ./include.sh
 #. ./edit_util.sh
 #call_process_server
