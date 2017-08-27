@@ -18,7 +18,7 @@ set -e
 #去掉所有=开头的行，防止key为空
 function format_manifest()
 {
-	debug_error "format_manifest"
+	debug_func "format_manifest"
 
 	sed -i '/^#.*/d' $1
 	sed -i '/^[[:space:]]*$/d' $1
@@ -31,7 +31,7 @@ function format_manifest()
 #将清单文件保存为map集合，便于存取
 function parse_manifest()
 {
-	debug_error "parse_manifest"
+	debug_func "parse_manifest"
 
 	creat_map $1
 
@@ -41,12 +41,12 @@ function parse_manifest()
 #包含：1.编译服务器根据如"亿典"切换到亿典分支, 2.将该分支相关需要改动的路径导出
 function load_local_config()
 {
-	debug_error "load_local_config"
+	debug_func "load_local_config"
 	
-	#根据客户名字, 从配置文件"custom_branch_platform"中读取对应的分支和平台
-	manu_name="${menifestmap["PRODUCT_MANUFACTURER"]}"
-	debug_warn "PRODUCT_MANUFACTURER = $manu_name"
-	get_branch_and_platform $manu_name 
+	#根据客户唯一标识码, 从配置文件"custom_branch_platform"中读取对应的分支和平台
+	custom_id="${menifestmap["PRODUCT_MANUFACTURER"]}"
+	debug_info "PRODUCT_MANUFACTURER = $custom_id"
+	get_branch_and_platform $custom_id
 	debug_info "branch:$CURENT_BRANCH  platform:$CURENT_PLATFORM"
 
 	#TODO 编译服务器切分支,
@@ -59,19 +59,19 @@ function load_local_config()
 #修改平台代码的方法
 function update_local_code()
 {
-	debug_error "update_local_code"
+	debug_func "update_local_code"
 	call_process_server
 }
 
 #如果不出意外，直接调用我们原有的jeckens.sh就可以
 function call_jeckens_work()
 {
-	debug_error "call_jeckens_work"
+	debug_func "call_jeckens_work"
 }
 
 function init_update_source()
 {
-	debug_error "init_update_source"
+	debug_func "init_update_source"
 
 	format_manifest $1
 
@@ -84,6 +84,6 @@ function init_update_source()
 	call_jeckens_work
 }
 
-debug_error "Start ..."
+debug_func "Start ..."
 init_update_source $1
-debug_error "End=$? ..."
+debug_func "End=$? ..."

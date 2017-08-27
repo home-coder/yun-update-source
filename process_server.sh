@@ -8,9 +8,14 @@
 #
 function handler_event()
 {
+	debug_func "handler_event"
 	key=$1
 	value=${menifestmap[$key]}
-	debug_warn "key=$key, value=${menifestmap[$key]}"
+	if [ -n "&key" ]; then
+		debug_error "key is NULL (exit -1)"
+		exit -1
+	fi
+	debug_info "key=$key, value=${menifestmap[$key]}"
 
 	case "$key" in
 	"platform")
@@ -25,11 +30,11 @@ function handler_event()
 #
 function call_process_server()
 {
-	debug_warn "call_process_server in"
+	debug_func "call_process_server     >>>>>"
 	for key in ${!menifestmap[@]}; do
 		handler_event $key
 	done
-	debug_warn "call_process_server over"
+	debug_func "call_process_server     <<<<<"
 }
 
 #测试用例

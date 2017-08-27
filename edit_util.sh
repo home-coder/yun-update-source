@@ -10,19 +10,18 @@
 #
 function write_mk_file() 
 {
-	debug_warn "write_mk_file in"
+	debug_func "write_mk_file in"
 	param_file=$1
 	param_key=$2
 	param_value=$3
-	debug_warn $param_file $param_key $param_value
+	debug_info $param_file $param_key $param_value
 
-	if grep -r ^$param_key $param_file; then
+	if grep -r ^$param_key $param_file 2>&1 1>/dev/null; then
 		sed -i '/^'$param_key'/s/\(.*\):=.*/\1:= '$param_value'/g' $param_file
 	else
 		add_prop="$param_key := $param_value"
 		echo $add_prop >> $param_file
 	fi
-	debug_warn "write_mk_file over"
 }
 
 #
@@ -33,10 +32,11 @@ function write_mk_file()
 #
 function write_txt_file()
 {
+	debug_func "write_txt_file"
 	param_file=$1
 	param_key=$2
 	param_value=$3
-	debug_warn $param_file $param_key $param_value
+	debug_info $param_file $param_key $param_value
 	
 	if grep -r ^$param_key $param_file; then
 		sed -i '/^'$param_key='/s/.*/'$param_key'='$param_value',/g' $param_file
@@ -54,6 +54,8 @@ function write_txt_file()
 #
 function write_kl_file()
 {
+	debug_func "write_kl_file"
+
 	param_file=$1
 	param_key=$2
 	param_value=$3
@@ -98,7 +100,7 @@ function write_kl_file()
 #
 function write_fex_file()
 {
-	debug_warn "write_fex_file"
+	debug_func "write_fex_file"
 	param_file=$1
 	param_section=$2
 	param_item=$3
@@ -116,7 +118,7 @@ function write_fex_file()
 #
 function write_cfg_file()
 {
-	debug_warn "write_cfg_file"
+	debug_func "write_cfg_file"
 }
 
 

@@ -13,14 +13,24 @@ export LUNCH_MK	 CUSTOM_IR_KL
 #export
 #export
 
+function debug_important()
+{
+	echo -e "\033[42;37mIMPORT: $*\033[0m"
+}
+
+function debug_func()
+{
+	echo -e "\033[44;37mFUNC: $*\033[0m"
+}
+
 function debug_error()
 {
-	echo -e "\033[47;31mERROR: $*\033[0m"
+	echo -e "\033[41;30mERROR: $*\033[0m"
 }
 
 function debug_warn()
 {
-	echo -e "\033[47;34mWARN: $*\033[0m"
+	echo -e "\033[43;30mWARN: $*\033[0m"
 }
 
 function debug_info()
@@ -40,10 +50,12 @@ function creat_map()
 
 function debug_map()
 {
+	debug_func "dump map     >>>>>"
 	for key in ${!menifestmap[@]} 
 	do  
 		debug_warn "key=$key, value=${menifestmap[$key]}"
 	done
+	debug_func "dump map     <<<<<"
 }
 
 #
@@ -51,7 +63,8 @@ function debug_map()
 #
 function get_branch_and_platform()
 {
-	debug_warn "set_branch_and_platform"
+	debug_func "get_branch_and_platform"
+	local custom_id
 	brpf=$(awk -F " " -v custom_id="$1" '$1==custom_id {print $2,$3}' $CBP_PATH)
 	if [ -n "$brpf" ]; then
 		CURENT_BRANCH=$(echo $brpf | awk '{print $1}')
@@ -68,7 +81,7 @@ function git_checkout_branch()
 
 function config_platform_file_path()
 {
-	debug_warn "config_platform_file_path"
+	debug_func "config_platform_file_path"
 	case "$CURENT_PLATFORM" in
 	"dolphin-cantv-h2")
 		LUNCH_MK="./test_data/dolphin_cantv_h2.mk"
@@ -82,6 +95,8 @@ function config_platform_file_path()
 
 #测试用例
 ##!/bin/bash
+#debug_important "hello world"
+#debug_func "hello world"
 #debug_info "----------------"
 #debug_warn "----------------"
 #debug_error "----------------"
