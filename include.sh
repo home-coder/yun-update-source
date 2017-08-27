@@ -53,7 +53,7 @@ function debug_map()
 	debug_func "dump map     >>>>>"
 	for key in ${!menifestmap[@]} 
 	do  
-		debug_warn "key=$key, value=${menifestmap[$key]}"
+		debug_important "key=$key, value=${menifestmap[$key]}"
 	done
 	debug_func "dump map     <<<<<"
 }
