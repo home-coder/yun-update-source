@@ -1,4 +1,7 @@
-#!/bin/bash
+#
+# process_server.sh 事件处理方法
+#
+
 
 #
 #@PARAM: key; @FUNC: 根据key值来处理不同事物
@@ -30,6 +33,7 @@ function call_process_server()
 }
 
 #测试用例
+#!/bin/bash
 #. ./include.sh
 #. ./edit_util.sh
 #call_process_server

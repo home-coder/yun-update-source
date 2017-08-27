@@ -1,4 +1,6 @@
-#!/bin/bash
+#
+# include.sh 环境依赖项
+#
 
 declare -A menifestmap=()
 export menifestmap
@@ -79,6 +81,7 @@ function config_platform_file_path()
 
 
 #测试用例
+#!/bin/bash
 #debug_info "----------------"
 #debug_warn "----------------"
 #debug_error "----------------"

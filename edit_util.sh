@@ -1,4 +1,6 @@
-#!/bin/bash
+# edit_util.sh 文本编辑方法
+#
+
 
 #
 #@PARAM: 1:path
@@ -121,6 +123,7 @@ function write_cfg_file()
 
 
 #测试用例
+#!/bin/bash
 . ./include.sh
 write_mk_file "./test_data/dolphin_cantv_h2.mk"  "PRODUCT_MANUFACTURER"  "忆典"
 #write_txt_file "external_product.txt"  "BOX"  "迪优美特222=东莞市智而浦实业有限公司=4007772628=3375381074@qq.com"
