@@ -26,3 +26,9 @@ yun-update-source
 4.如果脚本执行错误发邮件的流程是怎样的								[江秀杰]	not
 5.考虑set -e引起的退出后，我们如何知道退出的返回值						[江秀杰]	not
 6.校验本地更新后的文件的配置processedmap与manifestmap是否严格一致					[江秀杰]	not
+7.fex文件的写入方法										[江秀杰]	not
+8.cfg文件的写入方法										[闫军安]	not
+9.config_platform_file_path平台配置文件的收集，需要将很多平台的都写好				[闫军安 江秀杰]	not
+10.call_process_server逻辑的梳理								[江秀杰]	not
+11.handler_event各种事件的处理，将事件类型与前端确认好						[闫军安 江秀杰]	not
+12.creat_local_map需要考虑kl等文件的特殊化处理,生成localmap					[闫军安 江秀杰]	not
