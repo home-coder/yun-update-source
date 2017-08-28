@@ -5,6 +5,12 @@
 declare -A manifestmap=()
 export manifestmap
 
+declare -A local_org_map=()
+export local_org_map
+
+declare -A local_new_map=()
+export local_new_map
+
 export CURENT_BRANCH  CURENT_PLATFORM
 
 CBP_PATH="custom_branch_platform"
@@ -98,7 +104,7 @@ function config_platform_file_path()
 function creat_local_map()
 {
 	debug_func "creat_local_map"
-	#TODO 仿照manifestmap声明，根据配置文件路径一一收集key-value对
+	#TODO 仿照manifestmap声明，根据不同平台配置文件路径一一收集key-value对
 }
 
 #测试用例
