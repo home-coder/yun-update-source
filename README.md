@@ -32,3 +32,20 @@ yun-update-source
 10.call_process_server逻辑的梳理								[江秀杰]	not
 11.handler_event各种事件的处理，将事件类型与前端确认好						[闫军安 江秀杰]	not
 12.creat_local_map需要考虑kl等文件的特殊化处理,生成localmap					[闫军安 江秀杰]	not
+
+
+
+
+
+###################################################参考手册##############################################################################
+所有命令链接
+--
+http://man.linuxde.net
+
+AWK:
+--
+http://man.linuxde.net/awk
+
+SED:
+--
+http://man.linuxde.net/sed
