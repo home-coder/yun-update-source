@@ -2,8 +2,8 @@
 # include.sh 环境依赖项
 #
 
-declare -A menifestmap=()
-export menifestmap
+declare -A manifestmap=()
+export manifestmap
 
 export CURENT_BRANCH  CURENT_PLATFORM
 
@@ -13,7 +13,7 @@ export LUNCH_MK	 CUSTOM_IR_KL
 #export
 #export
 
-function debug_important()
+function debug_import()
 {
 	echo -e "\033[42;37mIMPORT: $*\033[0m"
 }
@@ -38,22 +38,22 @@ function debug_info()
 	echo -e "\033[47;30mINFO: $*\033[0m"
 }
 
-function creat_map()
+function creat_manifest_map()
 {
 	while read line; do
 		key=`echo $line | awk -F '=' '{print $1}'`
 		value=`echo $line | awk -F '=' '{print $2}'`
 		debug_info "key=$key, value=$value"
-		menifestmap["$key"]=$value
+		manifestmap["$key"]=$value
 	done < $1
 }
 
 function debug_map()
 {
 	debug_func "dump map     >>>>>"
-	for key in ${!menifestmap[@]} 
+	for key in ${!manifestmap[@]} 
 	do  
-		debug_important "key=$key, value=${menifestmap[$key]}"
+		debug_import "key=$key, value=${manifestmap[$key]}"
 	done
 	debug_func "dump map     <<<<<"
 }
@@ -92,6 +92,14 @@ function config_platform_file_path()
 	esac
 }
 
+#
+#@PARAM: null; @FUNC: 收集本地文件的配置量，并创建一个MAP
+#
+function creat_local_map()
+{
+	debug_func "creat_local_map"
+	#TODO 仿照manifestmap声明，根据配置文件路径一一收集key-value对
+}
 
 #测试用例
 ##!/bin/bash
@@ -101,3 +109,4 @@ function config_platform_file_path()
 #debug_warn "----------------"
 #debug_error "----------------"
 #get_branch_and_platform "一点"
+#creat_local_map

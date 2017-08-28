@@ -2,7 +2,6 @@
 # process_server.sh 事件处理方法
 #
 
-
 #
 #@PARAM: key; @FUNC: 根据key值来处理不同事物
 #
@@ -10,12 +9,12 @@ function handler_event()
 {
 	debug_func "handler_event"
 	key=$1
-	value=${menifestmap[$key]}
-	if [ -n "&key" ]; then
+	value=${manifestmap[$key]}
+	if [ -z "&key" ]; then
 		debug_error "key is NULL (exit -1)"
 		exit -1
 	fi
-	debug_info "key=$key, value=${menifestmap[$key]}"
+	debug_info "key=$key, value=${manifestmap[$key]}"
 
 	case "$key" in
 	"platform")
@@ -26,12 +25,15 @@ function handler_event()
 }
 
 #
-#@PARAM: null; @FUNC: 主要根据menifest生成的map来分别处理事件
+#@PARAM: null; @FUNC: 主要根据manifest生成的map来分别处理事件
+#@RET:   0 更新成功， 1 无需更新， -1 更新失败
 #
 function call_process_server()
 {
 	debug_func "call_process_server     >>>>>"
-	for key in ${!menifestmap[@]}; do
+
+	for key in ${!manifestmap[@]}; do
+		#TODO 判断服务器下发配置manifestmap和本地收集到的配置localmap是否严格一致，不一致则升级
 		handler_event $key
 	done
 	debug_func "call_process_server     <<<<<"

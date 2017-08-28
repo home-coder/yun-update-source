@@ -33,7 +33,7 @@ function parse_manifest()
 {
 	debug_func "parse_manifest"
 
-	creat_map $1
+	creat_manifest_map $1
 
 	debug_map
 }
@@ -44,7 +44,7 @@ function load_local_config()
 	debug_func "load_local_config"
 	
 	#根据客户唯一标识码, 从配置文件"custom_branch_platform"中读取对应的分支和平台
-	custom_id="${menifestmap["PRODUCT_MANUFACTURER"]}"
+	custom_id="${manifestmap["PRODUCT_MANUFACTURER"]}"
 	debug_info "PRODUCT_MANUFACTURER = $custom_id"
 	get_branch_and_platform $custom_id
 	debug_info "branch:$CURENT_BRANCH  platform:$CURENT_PLATFORM"
@@ -54,6 +54,9 @@ function load_local_config()
 
 	#TODO 根据平台加载批量修改文件的路径
 	config_platform_file_path
+
+	#将本地原始版本的配置映射为map集合
+	creat_local_map
 }
 
 #修改平台代码的方法
@@ -79,6 +82,7 @@ function init_update_source()
 
 	load_local_config
 
+	#TODO 注意接收返回值
 	update_local_code
 
 	call_jeckens_work
