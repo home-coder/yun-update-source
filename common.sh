@@ -1,7 +1,8 @@
-#!/bin/bash
 #
 # common.sh 云编译脚本top
 #
+
+#!/bin/bash
 
 set -e
 . ./include.sh

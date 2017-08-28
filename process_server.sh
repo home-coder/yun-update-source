@@ -36,6 +36,8 @@ function call_process_server()
 		#TODO 判断服务器下发配置manifestmap和本地收集到的配置localmap是否严格一致，不一致则升级
 		handler_event $key
 	done
+	#TODO 当所有事件处理完成后，校验本地更新后的文件的配置processedmap与manifestmap是否严格一致，一致表明改动成功 可以升级
+
 	debug_func "call_process_server     <<<<<"
 }
 
