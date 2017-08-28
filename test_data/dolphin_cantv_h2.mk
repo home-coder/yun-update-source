@@ -169,7 +169,7 @@ PRODUCT_BRAND := Allwinner
 PRODUCT_NAME := dolphin_cantv_h2
 PRODUCT_DEVICE := dolphin-cantv-h2
 PRODUCT_MODEL := H2
-PRODUCT_MANUFACTURER := 迪优美特
+PRODUCT_MANUFACTURER := 讯玛
 
 #pack parameter
 PACK_BOARD := dolphin-p2
