@@ -37,6 +37,7 @@ yun-update-source
 12.creat_local_map需要考虑kl等文件的特殊化处理,生成localmap					[闫军安 江秀杰]	not
 13.对edit_util.sh中所有方法加入if [ ! -f $1 ] || [ $# -ne参数校验				[闫军安 江秀杰]	not
 14.creat_local_map创建满足两种local_org_map 和 local_new_map					[闫军安 江秀杰]	not
+15.考虑修改map键值对的方式写入文件还是直接写入文件比较好						[江秀杰]	not
 
 
 
