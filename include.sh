@@ -51,6 +51,10 @@ function debug_info()
 #
 function creat_manifest_map()
 {
+	if [ ! -f $1 ] || [ $# -ne 1 ];then	
+		debug_error "creat_local_map, invalid param. exit(-1)"
+		exit -1
+	fi
 	while read line; do
 		key=`echo $line | awk -F '=' '{gsub(" |\t","",$1); print $1}'`
 		value=`echo $line | awk -F '=' '{gsub("^ |\t","",$2); print $2}'`
@@ -59,15 +63,60 @@ function creat_manifest_map()
 	done < $1
 }
 
+
+#
+#@PARM:以字符串形式对应map， @FUNC: 根据名称分别dump。 此方法有重复代码，未优化
+#@PARM:以字符串形式对应map， @FUNC: 根据名称分别dump。 此方法有重复代码，未优化
+#@PARM:以字符串形式对应map， @FUNC: 根据名称分别dump。 此方法有重复代码，未优化
+#
 function dump_map()
 {
-	debug_func "dump map     >>>>>"
-	mapname=$1
-	for key in ${!mapname[@]} 
-	do  
-		debug_import "key=$key, value=${mapname["$key"]}"
-	done
-	debug_func "dump map     <<<<<"
+	debug_func "dump map->[$1]     >>>>>"
+	case "$1" in
+		"manifestmap")
+			if [[ -z ${!manifestmap[@]} ]]; then
+				debug_error "this a null map, exit(-1)"
+				exit -1
+			fi
+			for key in ${!manifestmap[@]}; do
+				if [[ -z ${manifestmap["$key"]} ]]; then
+					debug_warn "a null value here key->$key"
+				else
+					debug_import "key=$key, value=${manifestmap["$key"]}"
+				fi
+			done
+			;;
+		"local_org_map")
+			if [[ -z ${!local_org_map[@]} ]]; then
+				debug_error "this a null map, exit(-1)"
+				exit -1
+			fi
+			for key in ${!local_org_map[@]}; do
+				if [[ -z ${local_org_map["$key"]} ]]; then
+					debug_warn "a null value here key->$key"
+				else
+					debug_import "key=$key, value=${local_org_map["$key"]}"
+				fi
+			done
+			;;
+		"local_new_map")
+			if [[ -z ${!local_new_map[@]} ]]; then
+				debug_error "this a null map, exit(-1)"
+				exit -1
+			fi
+			for key in ${!local_new_map[@]}; do
+				if [[ -z ${local_new_map["$key"]} ]]; then
+					debug_warn "a null value here key->$key"
+				else
+					debug_import "key=$key, value=${local_new_map["$key"]}"
+				fi
+			done
+			;;
+		*)
+			debug_warn "invalid map dump, it->[$1] is not exsit"
+		;;
+	esac
+	debug_func "dump map->[$1]     <<<<<"
 }
 
 #
@@ -96,7 +145,8 @@ function git_checkout_branch()
 function config_platform_file_path()
 {
 	debug_func "config_platform_file_path"
-	PLATFORM_PATH="./r-config/$CURENT_PLATFORM"
+	PLATFORM_PATH="./r-config/${CURENT_PLATFORM}_register"
+	debug_info "current platform_path-->$PLATFORM_PATH"
 }
 
 #
@@ -106,25 +156,26 @@ function creat_local_map()
 {
 	debug_func "creat_local_map"
 	#TODO 仿照manifestmap声明，根据不同平台配置文件路径一一收集key-value对
-	mapname=$2
-	for key in ${!mapname[@]} 
-	do  
-		debug_import "key=$key, value=${mapname["$key"]}"
-	done
+	if [ ! -f $1 ] || [ $# -ne 2 ];then	
+		debug_error "creat_local_map, invalid param. exit(-1)"
+		exit -1
+	fi
 	while read line; do
 		key=`echo $line | awk -F '=' '{gsub(" |\t","",$1); print $1}'`
 		value=`echo $line | awk -F '=' '{gsub("^ |\t","",$2); print $2}'`
 		debug_info "key=$key, value=$value"
-		mapname["$key"]=$value
+		if [[ "$2"x == "local_org_map"x ]]; then
+			local_org_map["$key"]=$value
+		elif [[ "$2"x == "local_new_map"x ]]; then
+			local_new_map["$key"]=$value
+		else
+			debug_warn "intend to create invalid map, ignore"
+		fi
 	done < $1
-	for key in ${!mapname[@]} 
-	do  
-		debug_import "key=$key, value=${mapname["$key"]}"
-	done
 }
 
 #测试用例
-##!/bin/bash
+#!/bin/bash
 #debug_important "hello world"
 #debug_func "hello world"
 #debug_info "----------------"
@@ -132,5 +183,6 @@ function creat_local_map()
 #debug_error "----------------"
 #creat_local_map manifest.prot local_org_map
 #dump_map local_org_map
-get_branch_and_platform "亿典" "BBC_H12"
-#creat_local_map
+#get_branch_and_platform "亿典" "BBC_H12"
+creat_local_map manifest.prot "local_org_map"
+dump_map "local_org_map"

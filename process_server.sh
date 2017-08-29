@@ -17,10 +17,10 @@ function handler_event()
 	debug_info "key=$key, value=${manifestmap[$key]}"
 
 	case "$key" in
-	"PRODUCT_MANUFACTURER")
-		write_mk_file $LUNCH_MK $key $value
-	;;
-	#TODO 其他事件
+		"PRODUCT_MANUFACTURER")
+			write_mk_file $LUNCH_MK $key $value
+			;;
+			#TODO 其他事件
 	esac
 }
 
