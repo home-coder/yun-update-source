@@ -81,7 +81,7 @@ function write_kl_file()
 	else
 		sed_value=""
 		value_arry=$(echo $param_value|awk '{for(i=1; i<=NF; i++) print $i}')
-		#sed 不能加载含有空格的变量，将所有空格变成,逗号。完成sed后将,逗号替换回空格
+		#sed 不能加载含有空格的变量(还没有找到方法)，将所有空格变成,逗号。完成sed后将,逗号替换回空格
 		for value in ${value_arry[*]}; do
 			if [[ -z $sed_value ]]; then
 				sed_value=$value
@@ -116,7 +116,6 @@ function write_fex_file()
 	param_value=$4
 
 	#awk -F '=' '/\['${param_section}'\]/{a=1 gsub(" |\t","",$1)} (a==1 && "'${param_item}'"==$1){gsub($2,"'${param_value}'"); a=0} {print $0 > "'${param_file}'"}' ${param_file}
-	#awk -F "=" '/^\['${param_section}'\]/{a=1} {i++} (a==1 && !""'${param_item}'"==$1"){print i; a=0}' $param_file
 
 	begin_block=0
 	end_block=0
@@ -124,8 +123,9 @@ function write_fex_file()
 	has_item=0
 
 	while read line; do
-		num=`expr $num + 1`
-		if [ "X$line" = "X[$param_section]" ];then
+		let num=num+1
+
+		if [ X"$line" = X"[$param_section]" ];then
 			has_section=1
 			begin_block=1
 			continue
@@ -137,16 +137,16 @@ function write_fex_file()
 				break
 			fi
 
-			need_ignore=$(echo $line | awk 'BEGIN{ret=0} /^#/{ret=1} /^$/{ret=1} END{print ret}')
+			need_ignore=$(echo $line | awk 'BEGIN{ret=0} /^;/{ret=1} /^$/{ret=1} END{print ret}')
 			if [ $need_ignore -eq 1 ];then
 				continue
 			fi
 			field=$(echo $line | awk -F= '{gsub(" |\t","",$1); print $1}')
-			#####Fix Me We Support Space Value
-			value=$(echo $line | awk -F= '{gsub("","",$2); print $2}')
-			if [ "X$param_item" = "X$field" ];then
+			value=$(echo $line | awk -F= '{gsub(" |\t","",$2); print $2}')
+
+			if [ "$param_item"x == "$field"x ];then
 				has_item=1
-				debug_import "fex modify line num = $num"
+				debug_import "fex modify line num = $num, section[$param_section], item[$param_item], value[$param_value]"
 				break
 			else
 				has_item=0
@@ -154,14 +154,20 @@ function write_fex_file()
 		fi
 	done < $1
 
-	if [ $has_section&&$has_item&&$value!=$param_value ]; then
-		sed -i "${num}s/$param_value/$value/g" $param_file
-	elif [ $has_section&&$has_item&&$value==$param_value ]
-		debug_info "because there is not any different, so do nothing"
-	elif [ $has_section&&!$has_item ]
+	#sed -i '99s/'"port:PA15<1><default><default><1>"'/'"port:PA12<1><default><default><1>"'/' $param_file
+
+	if [[ ($has_section -ne 0)&&($has_item -ne 0)&&("$value"x != "$param_value"x) ]]; then
+		sed -i "${num}s/$value/$param_value/" $param_file
+		debug_import "$num: $param_item = $param_value"
+	elif [[ ($has_section -ne 0)&&($has_item -ne 0)&&("$value"x == "$param_value"x) ]]; then
+		debug_error "[Do nothing]!! But Never go here, We filter and ignore the same key-value in process_server"
+	elif [[ ($has_section -ne 0)&&($has_item -eq 0) ]]; then
 		debug_warn "just add item, Please check your source code use or not use the item"
+		sed -i "/^\[${param_section}\]/a\\$param_item = $param_value" $param_file
 	else
 		debug_warn "the valid item<$param_item> is not exsit, it will just add but unuseful"
+		echo "[${param_section}]" >> $param_file
+		echo "$param_item = $param_value" >> $param_file
 	fi
 }
 
@@ -179,9 +185,9 @@ function write_cfg_file()
 
 #测试用例
 #!/bin/bash
-. ../include.sh
+. ./include.sh
 #write_mk_file "./test_data/dolphin_cantv_h2.mk"  "PRODUCT_MANUFACTURER"  "忆典"
 #write_txt_file "external_product.txt"  "BOX"  "迪优美特222=东莞市智而浦实业有限公司=4007772628=3375381074@qq.com"
 #write_kl_file "custom_ir_1044.kl" "128" "POWER   WAKE"
-write_fex_file "sys_config.fex" "boot_init_gpio" "gpio1" "port:PA12<1><default><default><1>"
+write_fex_file "./test_data/sys_config.fex" "boot_init_gpio" "gpio1" "port:PA12<1><default><default><1>"
 #write_cfg_file
