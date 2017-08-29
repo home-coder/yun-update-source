@@ -12,7 +12,7 @@ export local_org_map
 declare -A local_new_map=()
 export local_new_map
 
-export CURENT_BRANCH  CURENT_PLATFORM
+export CURENT_BRANCH  CURENT_PLATFORM PLATFORM_PATH
 
 CBP_PATH="./r-config/custom_branch_platform"
 
@@ -71,7 +71,7 @@ function dump_map()
 }
 
 #
-#@PARAM: 客户的名字；@FUNC: 根据名字从配置"custom_branch_platform"获取对应的分支和硬件平台
+#@PARAM: 客户的名字；@FUNC: 根据一个唯一标示组合从配置"./r-config/custom_branch_platform"获取对应的分支以及硬件平台映射表路径
 #
 function get_branch_and_platform()
 {
@@ -96,14 +96,7 @@ function git_checkout_branch()
 function config_platform_file_path()
 {
 	debug_func "config_platform_file_path"
-	case "$CURENT_PLATFORM" in
-	"dolphin-cantv-h2")
-		LUNCH_MK="./test_data/dolphin_cantv_h2.mk"
-		CUSTOM_IR_KL="./test_data/custom_ir_"
-		#TODO其它待修改文件路径
-	;;
-	#TODO 其它平台配置
-	esac
+	PLATFORM_PATH="./r-config/$CURENT_PLATFORM"
 }
 
 #
