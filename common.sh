@@ -32,7 +32,7 @@ function parse_manifest()
 
 	creat_manifest_map $1
 
-	debug_map
+	dump_map
 }
 
 #包含：1.编译服务器根据如"亿典"切换到亿典分支, 2.将该分支相关需要改动的路径导出
