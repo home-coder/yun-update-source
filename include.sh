@@ -14,7 +14,7 @@ export local_new_map
 
 export CURENT_BRANCH  CURENT_PLATFORM
 
-CBP_PATH="custom_branch_platform"
+CBP_PATH="./r-config/custom_branch_platform"
 
 export LUNCH_MK	 CUSTOM_IR_KL	
 #export
@@ -76,11 +76,12 @@ function dump_map()
 function get_branch_and_platform()
 {
 	debug_func "get_branch_and_platform"
-	local custom_id
-	brpf=$(awk -F " " -v custom_id="$1" '$1==custom_id {print $2,$3}' $CBP_PATH)
+	local manufacturer  model
+	brpf=$(awk -F " " -v manufacturer="$1" -v model="$2" '($1==manufacturer && $2==model) {print $2,$3}' $CBP_PATH)
 	if [ -n "$brpf" ]; then
 		CURENT_BRANCH=$(echo $brpf | awk '{print $1}')
 		CURENT_PLATFORM=$(echo $brpf | awk '{print $2}')
+		debug_import "branch->$CURENT_BRANCH  platform->$CURENT_PLATFORM"
 	else
 		debug_error "the file "custom_branch_platform" is not match this custom_id[$custom_id], exit(-1)"
 		exit -1
@@ -136,7 +137,7 @@ function creat_local_map()
 #debug_info "----------------"
 #debug_warn "----------------"
 #debug_error "----------------"
-creat_local_map manifest.prot local_org_map
-dump_map local_org_map
-#get_branch_and_platform "一点"
+#creat_local_map manifest.prot local_org_map
+#dump_map local_org_map
+get_branch_and_platform "亿典" "BBC_H12"
 #creat_local_map

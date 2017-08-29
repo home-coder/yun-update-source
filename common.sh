@@ -17,7 +17,7 @@ set -e
 #去掉行首空格和tab
 #去掉行尾空格和tab
 #去掉所有=开头的行，防止key为空
-#最后的结果可以是 "key=value" 或者 "key = value"，等号两边的空格在map中处理
+#最后的结果可以是 "key=value" 或者 "key = value"，等号两边的空格在创建map时再处理
 function format_manifest()
 {
 	debug_func "format_manifest"
@@ -44,7 +44,6 @@ function load_local_config()
 	custom_id="${manifestmap["PRODUCT_MANUFACTURER"]}"
 	debug_info "PRODUCT_MANUFACTURER = $custom_id"
 	get_branch_and_platform $custom_id
-	debug_info "branch:$CURENT_BRANCH  platform:$CURENT_PLATFORM"
 
 	#TODO 编译服务器切分支,
 	git_checkout_branch 
