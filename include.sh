@@ -44,22 +44,27 @@ function debug_info()
 	echo -e "\033[47;30mINFO: $*\033[0m"
 }
 
+
+#
+#@FUNC: 去除key后面的空格，去除value前面的空格, 保存为一个MAP
+#
 function creat_manifest_map()
 {
 	while read line; do
-		key=`echo $line | awk -F '=' '{print $1}'`
-		value=`echo $line | awk -F '=' '{print $2}'`
+		key=`echo $line | awk -F '=' '{gsub(" |\t","",$1); print $1}'`
+		value=`echo $line | awk -F '=' '{gsub("^ |\t","",$2); print $2}'`
 		debug_info "key=$key, value=$value"
 		manifestmap["$key"]=$value
 	done < $1
 }
 
-function debug_map()
+function dump_map()
 {
 	debug_func "dump map     >>>>>"
-	for key in ${!manifestmap[@]} 
+	mapname=$1
+	for key in ${!mapname[@]} 
 	do  
-		debug_import "key=$key, value=${manifestmap[$key]}"
+		debug_import "key=$key, value=${mapname["$key"]}"
 	done
 	debug_func "dump map     <<<<<"
 }
@@ -76,7 +81,8 @@ function get_branch_and_platform()
 		CURENT_BRANCH=$(echo $brpf | awk '{print $1}')
 		CURENT_PLATFORM=$(echo $brpf | awk '{print $2}')
 	else
-		debug_error "custom_branch_platform is wrong"
+		debug_error "the file "custom_branch_platform" is not match this custom_id[$custom_id], exit(-1)"
+		exit -1
 	fi
 }
 
@@ -105,6 +111,21 @@ function creat_local_map()
 {
 	debug_func "creat_local_map"
 	#TODO 仿照manifestmap声明，根据不同平台配置文件路径一一收集key-value对
+	mapname=$2
+	for key in ${!mapname[@]} 
+	do  
+		debug_import "key=$key, value=${mapname["$key"]}"
+	done
+	while read line; do
+		key=`echo $line | awk -F '=' '{gsub(" |\t","",$1); print $1}'`
+		value=`echo $line | awk -F '=' '{gsub("^ |\t","",$2); print $2}'`
+		debug_info "key=$key, value=$value"
+		mapname["$key"]=$value
+	done < $1
+	for key in ${!mapname[@]} 
+	do  
+		debug_import "key=$key, value=${mapname["$key"]}"
+	done
 }
 
 #测试用例
@@ -114,5 +135,7 @@ function creat_local_map()
 #debug_info "----------------"
 #debug_warn "----------------"
 #debug_error "----------------"
+creat_local_map manifest.prot local_org_map
+dump_map local_org_map
 #get_branch_and_platform "一点"
 #creat_local_map
