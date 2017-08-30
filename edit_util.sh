@@ -13,11 +13,38 @@ function format_local_file()
 }
 
 #
-#@PARM: 为固定顺序的数组，include.sh中的external_product数组；@FUNC:按照数组顺序生成key-value对
+#@PARM: 为固定顺序的数组，include.sh中的external_product数组；@FUNC:按照数组顺序从文件中抓去数据并生成key-value对
 #
 function map_external_product()
 {
 	debug_func "map_external_product"
+	debug_info $*
+	if [ ! -f $1 ] || [ ! -n $2 ] || [ $# -ne 7 ];then
+		debug_error "param is wrong, exit(-1)"
+		exit -1
+	fi
+
+	#"inside_model" "PRODUCT_MANUFACTURER" "product_company" "product_hotline" "product_email"
+	local key_arry=(im, pm, pc, ph, pe)
+	local len=${#key_arry}
+	local val
+
+	#注意格式化预处理数据
+	for ((i=0; i < $len; i++)); do
+		val=`awk -v j="$i" '{print $j}' $1`
+		if [[ $i -eq $len ]]; then
+			val=`echo $val| sed -e 's/,*$//g'`
+		fi
+
+		if [[ "$2"x=="local_org_map"x ]]; then
+			local_org_map["$key[$i]"]=$val
+		elif [[ "$2"x=="local_new_map"x ]]; then
+			local_new_map["$key[$i]"]=$val
+		else
+			debug_error "$2 is not undefined, exit (-1)"
+			exit -1
+		fi
+	done
 }
 
 #
@@ -243,7 +270,10 @@ function write_cfg_file()
 
 #测试用例
 #!/bin/bash
+#set -x
 . ./include.sh
+PLATFORM_PATH="./r-config/dolphin-cantv-h2_register"&&creat_local_map "local_org_map" && external_product=("inside_model" "PRODUCT_MANUFACTURER" "product_company" "product_hotline" "product_email") && map_external_product "./test_data/external_product.txt" "local_org_map" "${external_product[@]}"
+dump_map "local_org_map"
 #write_mk_file "./test_data/dolphin_cantv_h2.mk"  "PRODUCT_MANUFACTURER"  "忆典"
 #write_txt_file "./test_data/external_product.txt"  "BOX"  "迪优美特222=东莞市智而浦实业有限公司=4007772628=3375381074@qq.com" 
 #write_kl_file "custom_ir_1044.kl" "128" "POWER   WAKE"

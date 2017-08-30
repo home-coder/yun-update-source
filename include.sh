@@ -164,6 +164,11 @@ function creat_local_map()
 		debug_error "creat_local_map, invalid param. exit(-1)"
 		exit -1
 	fi
+
+	if [ ! -f "$PLATFORM_PATH" ]; then
+		debug_error "$PLATFORM_PATH is not exsit, please run 'config_platform_file_path' first, exit (-1)"
+		exit -1
+	fi
 	#遍历manifestmap中的每一项key，通过此key在属性注册表中找到本地对应的value并且生成map；其它地方会用到这个map
 	#要兼容 不同平台 和 特殊属性的特殊处理
 
@@ -175,37 +180,38 @@ function creat_local_map()
 	local i=0
 	declare -a external_product_tmp
 	for var in ${external_product[@]}; do
-		#[ "$var" == "$" ] && echo "yes"
-		external_product_tmp[$i]=$(awk -v var_tmp="$var" '($2==var_tmp){print $1}' "./r-config/dolphin-cantv-h2_register")
+		external_product_tmp[$i]=$(awk -v var_tmp="$var" '($2==var_tmp){print $1}' $PLATFORM_PATH)
 		debug_import "${external_product_tmp[$i]}"
 		let i=i+1
 	done
 
 	for key in ${!manifestmap[@]}; do
 		#awk -v tmp="$key" '{print $0}' $PLATFORM_PATH
-		#特殊处理的属性优先处理, 厂商信息，因为external_product.txt的书写  有 顺 序  问题，需要特殊处理
+		# 1.特殊处理的属性优先处理, 厂商信息，因为external_product.txt的书写  有 顺 序  问题，需要特殊处理
+		#   如果manifest中有关于厂商信息的描述，则去本地查找对应的信息并生成map, 注意external_product中各项的顺序是固定的
 		for var in ${external_product_tmp[@]}; do
 			if [[ "$var"x == "$key"x ]]; then
 				debug_info "key的值: $var, 将统一map_external_product管理"
+				any_index="$var"
 				has_external=1
 				continue
 			fi
 		done
-		#如果manifest中有关于厂商信息的描述，则去本地查找对应的信息, external_product中各项的顺序是固定的
 		if [[ $has_external -eq 1 ]]; then
-			map_external_product $1 $external_product
+			external_product_file=$(awk -v var_tmp="$any_index" '($2==var_tmp){print $3}' $PLATFORM_PATH)
+			map_external_product $external_product_file $1 $external_product
 		fi
 
 		pp=$(awk -v tmp="$key" '(tmp==$1){print $2,$3}' $PLATFORM_PATH)
 		#prop 和 path是本地注册表中的属性和修改路径
 		prop=$(echo $pp |awk '{print $1}')
 		path=$(echo $pp |awk '{print $2}')
-		#特殊处理的属性优先处理, 红外设备
+		# 2. 特殊处理的属性优先处理, 红外设备
 		if [[ ${key:0:2} == "0x" ]]; then
 			case $CURENT_PLATFORM in
 				"dolphin-cantv-h2")
-					vendor_tmp=$(awk '($2=="customer_code"){print $1}' "./r-config/dolphin-cantv-h2_register")
-					path_tmp=$(awk '($2=="customer_code"){print $3}' "./r-config/dolphin-cantv-h2_register")
+					vendor_tmp=$(awk '($2=="customer_code"){print $1}' $PLATFORM_PATH)
+					path_tmp=$(awk '($2=="customer_code"){print $3}' $PLATFORM_PATH)
 					vendor=${manifestmap["$vendor_tmp"]}
 					path="${path_tmp}_${vendor}.kl"
 					prop=${key:2:4}
@@ -218,7 +224,7 @@ function creat_local_map()
 		debug_import "$key", "$prop, $path",  "是[ ${path##*.} ]类型文件"
 
 
-		#没有特殊型的文件统一如下处理(包含处理过的特殊文件如表示红外的kl文件不再具有特殊性), 如修改dolphin-cantv-h2.mk文件的属性
+		# 3. 没有特殊型的文件统一如下处理(包含处理过的特殊文件如表示红外的kl文件不再具有特殊性), 如修改dolphin-cantv-h2.mk文件的属性
 		case ${path##*.} in
 			"mk")
 				map_mk_file "$1" "$prop" "$path";;
@@ -232,12 +238,12 @@ function creat_local_map()
 
 #测试用例
 #!/bin/bash
+#set -x
 #debug_important "hello world"
 #debug_func "hello world"
 #debug_info "----------------"
 #debug_warn "----------------"
 #debug_error "----------------"
-#creat_local_map manifest.prot local_org_map
 #dump_map local_org_map
 #get_branch_and_platform "亿典" "BBC_H12"
 #creat_local_map "local_org_map"

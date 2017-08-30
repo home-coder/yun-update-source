@@ -1,7 +1,7 @@
 #manifest所有字段                 本地对应字段                    本地修改地址
 
-AAA							 inside_model                     ./test_data/env.cfg
-BBB							 launcher_channelid               ./test_data/env.cfg
+AAA							 inside_model                     ./test_data/external_product.txt
+BBB							 launcher_channelid               ./test_data/external_product.txt
 CCC							 product_company                  ./test_data/external_product.txt
 DDD							  product_hotline                 ./test_data/external_product.txt
 EEE							 product_email                    ./test_data/external_product.txt
@@ -11,4 +11,3 @@ HHH							gpio1                             ./test_data/sys_config.fex
 JJJ
 KKK                         business_model                    ./test_data/env.cfg
 LLL                         fake_flash                        ./test_data/env.cfg
-
