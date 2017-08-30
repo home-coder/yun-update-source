@@ -10,6 +10,12 @@ function handler_event()
 	debug_func "handler_event"
 	key=$1
 	value=${manifestmap[$key]}
+	
+	#TODO TODO
+	#全志平台
+	#目前第一阶段,保留env.cfg直接写分区而不是挂载到分区的形式，所以要通过文件系统external_product.txt形式暴露给用户空间
+	#支持usb_burn烧配置方式的同时也支持本地烧录时直接写入env.cfg  
+
 	if [ -z "&key" ]; then
 		debug_error "key is NULL (exit -1)"
 		exit -1

@@ -170,6 +170,7 @@ function creat_local_map()
 	#所有平台都有external_product.txt文件，文件格式特殊，特殊处理
 	#inside_model=PRODUCT_MANUFACTURER=product_company=product_hotline=product_email
 	#BOX=迪优美特222=东莞市智而浦实业有限公司=4007772628=3375381074@qq.com,
+
 	external_product=("inside_model" "PRODUCT_MANUFACTURER" "product_company" "product_hotline" "product_email")
 	local i=0
 	declare -a external_product_tmp
