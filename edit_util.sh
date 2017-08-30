@@ -4,6 +4,23 @@
 
 
 #
+#@PARAM:本地文件路径 @FUNC:删除行首的空格和tab.目的是搜索以key开头的关键字时是严格的
+#						   因为如果文本中关键字前面有空格或者tab会匹配不到，虽然费时但是便于观察
+#
+function format_local_file()
+{
+	sed -i 's/^[ \t]*//g' $1
+}
+
+#
+#@PARAM: path key
+#
+function map_mk_file()
+{
+	debug_func "map_mk_file"	
+}
+
+#
 #@PARAM: 1:path
 #		 2:key
 #		 3:value
@@ -12,11 +29,16 @@
 function write_mk_file() 
 {
 	debug_func "write_mk_file in"
+	debug_info $*
+	if [ ! -f $1 ] || [ $# -ne 3 ];then
+		debug_error "param is wrong, exit(-1)"
+		exit -1
+	fi
 	param_file=$1
 	param_key=$2
 	param_value=$3
-	debug_info $param_file $param_key $param_value
 
+	format_local_file $param_file
 	if grep -r ^$param_key $param_file 2>&1 1>/dev/null; then
 		sed -i '/^'$param_key'/s/\(.*\):=.*/\1:= '$param_value'/g' $param_file
 	else
@@ -35,12 +57,17 @@ function write_mk_file()
 function write_txt_file()
 {
 	debug_func "write_txt_file"
+	debug_info $*
+	if [ ! -f $1 ] || [ $# -ne 3 ];then
+		debug_error "param is wrong, exit(-1)"
+		exit -1
+	fi
 	param_file=$1
 	param_key=$2
 	param_value=$3
-	debug_info $param_file $param_key $param_value
 
-	if grep -r ^$param_key $param_file; then
+	format_local_file $param_file
+	if grep -r ^$param_key $param_file 2>&1 1>/dev/null; then
 		sed -i '/^'$param_key='/s/.*/'$param_key'='$param_value',/g' $param_file
 	else
 		debug_warn "Just add key-value, maybe not useful, Please check where it used"
@@ -58,7 +85,11 @@ function write_txt_file()
 function write_kl_file()
 {
 	debug_func "write_kl_file"
-
+	debug_info $*
+	if [ ! -f $1 ] || [ $# -ne 3 ];then
+		debug_error "param is wrong, exit(-1)"
+		exit -1
+	fi
 	param_file=$1
 	param_key=$2
 	param_value=$3
@@ -81,7 +112,7 @@ function write_kl_file()
 	else
 		sed_value=""
 		value_arry=$(echo $param_value|awk '{for(i=1; i<=NF; i++) print $i}')
-		#sed 不能加载含有空格的变量(还没有找到方法)，将所有空格变成,逗号。完成sed后将,逗号替换回空格
+		#sed 不能加载含有空格的变量(还没有找到方法,TODO 加两个引号试一下)，将所有空格变成,逗号。完成sed后将,逗号替换回空格
 		for value in ${value_arry[*]}; do
 			if [[ -z $sed_value ]]; then
 				sed_value=$value
@@ -105,11 +136,12 @@ function write_kl_file()
 function write_fex_file()
 {
 	debug_func "write_fex_file"
+
+	debug_info $*
 	if [ ! -f $1 ] || [ $# -ne 4 ];then
 		debug_error "param is wrong, exit(-1)"
 		exit -1
 	fi
-
 	param_file=$1
 	param_section=$2
 	param_item=$3
@@ -117,23 +149,24 @@ function write_fex_file()
 
 	#awk -F '=' '/\['${param_section}'\]/{a=1 gsub(" |\t","",$1)} (a==1 && "'${param_item}'"==$1){gsub($2,"'${param_value}'"); a=0} {print $0 > "'${param_file}'"}' ${param_file}
 
-	begin_block=0
-	end_block=0
+	begin_section=0
+	end_section=0
 	has_section=0
 	has_item=0
 
+	format_local_file $param_file
 	while read line; do
 		let num=num+1
 
 		if [ X"$line" = X"[$param_section]" ];then
 			has_section=1
-			begin_block=1
+			begin_section=1
 			continue
 		fi
 
-		if [ $begin_block -eq 1 ];then
-			end_block=$(echo $line | awk 'BEGIN{ret=0} /^\[.*\]$/{ret=1} END{print ret}')
-			if [ $end_block -eq 1 ];then
+		if [ $begin_section -eq 1 ];then
+			end_section=$(echo $line | awk 'BEGIN{ret=0} /^\[.*\]$/{ret=1} END{print ret}')
+			if [ $end_section -eq 1 ];then
 				break
 			fi
 
@@ -160,7 +193,7 @@ function write_fex_file()
 		sed -i "${num}s/$value/$param_value/" $param_file
 		debug_import "$num: $param_item = $param_value"
 	elif [[ ($has_section -ne 0)&&($has_item -ne 0)&&("$value"x == "$param_value"x) ]]; then
-		debug_error "[Do nothing]!! But Never go here, We filter and ignore the same key-value in process_server"
+		debug_warn "[Do nothing]!! But Never go here, We filter and ignore the same key-value in process_server"
 	elif [[ ($has_section -ne 0)&&($has_item -eq 0) ]]; then
 		debug_warn "just add item, Please check your source code use or not use the item"
 		sed -i "/^\[${param_section}\]/a\\$param_item = $param_value" $param_file
@@ -185,9 +218,9 @@ function write_cfg_file()
 
 #测试用例
 #!/bin/bash
-#. ./include.sh
+. ./include.sh
 #write_mk_file "./test_data/dolphin_cantv_h2.mk"  "PRODUCT_MANUFACTURER"  "忆典"
-#write_txt_file "external_product.txt"  "BOX"  "迪优美特222=东莞市智而浦实业有限公司=4007772628=3375381074@qq.com"
+#write_txt_file "./test_data/external_product.txt"  "BOX"  "迪优美特222=东莞市智而浦实业有限公司=4007772628=3375381074@qq.com" 
 #write_kl_file "custom_ir_1044.kl" "128" "POWER   WAKE"
 #write_fex_file "./test_data/sys_config.fex" "boot_init_gpio" "gpio1" "port:PA12<1><default><default><1>"
 #write_cfg_file

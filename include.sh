@@ -113,7 +113,7 @@ function dump_map()
 			done
 			;;
 		*)
-			debug_warn "invalid map dump, it->[$1] is not exsit"
+			debug_warn "undefined map dump, it->[$1] is not supported"
 		;;
 	esac
 	debug_func "dump map->[$1]     <<<<<"
@@ -125,14 +125,14 @@ function dump_map()
 function get_branch_and_platform()
 {
 	debug_func "get_branch_and_platform"
-	local manufacturer  model
-	brpf=$(awk -F " " -v manufacturer="$1" -v model="$2" '($1==manufacturer && $2==model) {print $2,$3}' $CBP_PATH)
+	local manufacturer  bmodel
+	brpf=$(awk -F " " -v manufacturer="$1" -v bmodel="$2" '($1==manufacturer && $2==bmodel) {print $2,$3}' $CBP_PATH)
 	if [ -n "$brpf" ]; then
 		CURENT_BRANCH=$(echo $brpf | awk '{print $1}')
 		CURENT_PLATFORM=$(echo $brpf | awk '{print $2}')
 		debug_import "branch->$CURENT_BRANCH  platform->$CURENT_PLATFORM"
 	else
-		debug_error "the file "custom_branch_platform" is not match this custom_id[$custom_id], exit(-1)"
+		debug_error "the file "custom_branch_platform" is not match this custom Id[$1, $2], exit(-1)"
 		exit -1
 	fi
 }
@@ -155,23 +155,15 @@ function config_platform_file_path()
 function creat_local_map()
 {
 	debug_func "creat_local_map"
-	#TODO 仿照manifestmap声明，根据不同平台配置文件路径一一收集key-value对
-	if [ ! -f $1 ] || [ $# -ne 2 ];then	
+	debug_info $*
+	if [ -z $1 ] || [ $# -ne 1 ];then	
 		debug_error "creat_local_map, invalid param. exit(-1)"
 		exit -1
 	fi
-	while read line; do
-		key=`echo $line | awk -F '=' '{gsub(" |\t","",$1); print $1}'`
-		value=`echo $line | awk -F '=' '{gsub("^ |\t","",$2); print $2}'`
-		debug_info "key=$key, value=$value"
-		if [[ "$2"x == "local_org_map"x ]]; then
-			local_org_map["$key"]=$value
-		elif [[ "$2"x == "local_new_map"x ]]; then
-			local_new_map["$key"]=$value
-		else
-			debug_warn "intend to create invalid map, ignore"
-		fi
-	done < $1
+	#遍历manifestmap中的每一项key，通过此key在注册表中找到本地对应的value并且生成map；其它地方会用到这个map
+	for key in ${!manifestmap[@]}; do
+		debug_warn "---"				
+	done
 }
 
 #测试用例
@@ -184,5 +176,5 @@ function creat_local_map()
 #creat_local_map manifest.prot local_org_map
 #dump_map local_org_map
 #get_branch_and_platform "亿典" "BBC_H12"
-creat_local_map manifest.prot "local_org_map"
-dump_map "local_org_map"
+#creat_local_map "local_org_map"
+#dump_map "local_org_map"

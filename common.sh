@@ -32,7 +32,7 @@ function parse_manifest()
 
 	creat_manifest_map $1
 
-	dump_map
+	dump_map "manifestmap"
 }
 
 #包含：1.编译服务器根据如"亿典"切换到亿典分支, 2.将该分支相关需要改动的路径导出
@@ -40,10 +40,17 @@ function load_local_config()
 {
 	debug_func "load_local_config"
 	
-	#根据客户唯一标识码, 从配置文件"custom_branch_platform"中读取对应的分支和平台
-	custom_id="${manifestmap["PRODUCT_MANUFACTURER"]}"
-	debug_info "PRODUCT_MANUFACTURER = $custom_id"
-	get_branch_and_platform $custom_id
+	#根据客户唯一标识码, 从属性注册表（随便一个）和配置文件"custom_branch_platform"中解析对应的分支和平台
+	manufacturer_tmp=$(awk '($2=="PRODUCT_MANUFACTURER"){print $1}' "./r-config/dolphin-cantv-h2_register")
+	bmodel_tmp=$(awk '($2=="business_model"){print $1}' "./r-config/dolphin-cantv-h2_register")
+	if [[ -z $manufacturer_tmp || -z $bmodel_tmp ]]; then
+		debug_error "Please check the register excel, exit(-1)"
+		exit -1
+	fi
+	manufacturer=${manifestmap["$manufacturer_tmp"]}
+	bmodel=${manifestmap["$bmodel_tmp"]}
+
+	get_branch_and_platform $manufacturer $bmodel
 
 	#TODO 编译服务器切分支,
 	git_checkout_branch 

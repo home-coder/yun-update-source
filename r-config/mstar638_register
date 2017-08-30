@@ -1,4 +1,4 @@
-#manifest所有字段                 本地对应字段                    本地修改地址
+#manifest字段                 本地对应字段                    本地修改地址
 
 AAA							 inside_model                     ./test_data/env.cfg
 BBB							 launcher_channelid               ./test_data/env.cfg
