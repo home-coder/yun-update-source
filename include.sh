@@ -198,8 +198,8 @@ function creat_local_map()
 			fi
 		done
 		if [[ $has_external -eq 1 ]]; then
-			external_product_file=$(awk -v var_tmp="$any_index" '($2==var_tmp){print $3}' $PLATFORM_PATH)
-			map_external_product $external_product_file $1 $external_product
+			external_product_file=$(awk -v var_tmp="$any_index" '($1==var_tmp){print $3}' $PLATFORM_PATH)
+			map_external_product $external_product_file $1 ${external_product[@]}
 		fi
 
 		pp=$(awk -v tmp="$key" '(tmp==$1){print $2,$3}' $PLATFORM_PATH)

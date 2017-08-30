@@ -40,7 +40,7 @@ function load_local_config()
 {
 	debug_func "load_local_config"
 	
-	#根据客户唯一标识码, 从属性注册表（随便一个）和配置文件"custom_branch_platform"中解析对应的分支和平台
+	#根据客户唯一标识码, 从属性注册表（随便一个，无论mstar还是全志或者晶晨前两个字段都是一样的）和配置文件"custom_branch_platform"中解析对应的分支和平台
 	manufacturer_tmp=$(awk '($2=="PRODUCT_MANUFACTURER"){print $1}' "./r-config/dolphin-cantv-h2_register")
 	bmodel_tmp=$(awk '($2=="business_model"){print $1}' "./r-config/dolphin-cantv-h2_register")
 	if [[ -z $manufacturer_tmp || -z $bmodel_tmp ]]; then
