@@ -58,8 +58,8 @@ function load_local_config()
 	#TODO 根据平台加载批量修改文件的路径
 	config_platform_file_path
 
-	#将本地原始版本的配置映射为map集合
-	creat_local_map
+	#将本地原始版本的配置映射为map集合, 对应全局local_org_map对象
+	creat_local_map "local_org_map"
 }
 
 #修改平台代码的方法

@@ -13,12 +13,37 @@ function format_local_file()
 }
 
 #
+#@PARM: 为固定顺序的数组，include.sh中的external_product数组；@FUNC:按照数组顺序生成key-value对
+#
+function map_external_product()
+{
+	debug_func "map_external_product"
+}
+
+#
 #@PARAM: path key
 #
 function map_mk_file()
 {
 	debug_func "map_mk_file"	
 }
+
+#
+#PARAM: 1.map的名字，2.属性，3属性所在地址; @FUNC:收集对应地址中的属性key-value，添加到map
+#
+function map_kl_file()
+{
+	debug_func "map_kl_file"
+}
+
+#
+#PARAM: 1.map的名字，2.属性，3属性所在地址; @FUNC:收集对应地址中的属性key-value，添加到map
+#
+function map_txt_file()
+{
+	debug_func "map_txt_file"
+}
+
 
 #
 #@PARAM: 1:path
