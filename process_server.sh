@@ -56,7 +56,6 @@ function process_external_product()
 		fi
 	done
 
-	debug_import "$inside_model_value" "$var"
 	write_txt_file "$external_product_file" "$inside_model_value" "$use_var"
 
 	[ $flag -eq 0 ] && return 0 || return 1
