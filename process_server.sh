@@ -42,16 +42,22 @@ function process_external_product()
 	local len=${#external_product_tmp}
 	local flag=0
 	local first=1
-	for ((i=0; i < $len; i++)); do
-		if [[ -z "${external_product_tmp[$i]}" ]] && [[ $first -eq 1 ]]; then
-			var=${manifestmap["${external_product_tmp[$i]}"]}
-			first=0
+	for var in "${external_product_tmp[@]}"; do
+		if [[ -n "$var" ]]; then
+			if [[ $first -eq 1 ]]; then
+				use_var=${manifestmap["$var"]}
+				first=0
+			else
+				use_var="${use_var}=${manifestmap["$var"]}"
+			fi
 		else
-			var="$var=${manifestmap["${external_product_tmp[$i]}"]}"
+			debug_error "this is a must write data, please ask manifest"
+			exit -1
 		fi
 	done
 
-	write_txt_file "$external_product_file" "$inside_model_value" "$var"
+	debug_import "$inside_model_value" "$var"
+	write_txt_file "$external_product_file" "$inside_model_value" "$use_var"
 
 	[ $flag -eq 0 ] && return 0 || return 1
 }
