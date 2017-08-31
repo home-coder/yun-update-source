@@ -41,6 +41,7 @@ yun-update-source
 16.inside_model和external_produc.tx里面的值在具体流程中的问题					[江秀杰]	not
 17.根据文档说明也要将kl文件的名字和键值等读取到								[江秀杰]     not
 18.kl文件的写入要反复比较多个字段的如wake的情况                                                          [江秀杰]    not
+19.执行路径问题，比如r-config的路径等等										[江秀杰]    not
 
 
 
