@@ -13,23 +13,6 @@ function format_local_file()
 }
 
 #
-#@PARM: ；@FUNC:按照数组顺序从文件中抓去数据并生成key-value对
-#			  1					2						3				4					5
-#       "inside_model" "PRODUCT_MANUFACTURER" "product_company" "product_hotline" "product_email"
-#
-function write_external_product()
-{
-	debug_func "map_external_product"
-	debug_info $*
-	if [ ! -f $1 ] || [ $# -ne 3 ];then
-		debug_error "param is wrong, exit(-1)"
-		exit -1
-	fi
-
-	
-}
-
-#
 #@PARAM: 1:path
 #		 2:key
 #		 3:value
