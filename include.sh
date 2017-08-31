@@ -41,6 +41,7 @@ function debug_info()
 #
 function creat_manifest_map()
 {
+	debug_func "creat_manifest_map"
 	if [ ! -f $1 ] || [ $# -ne 1 ];then	
 		debug_error "creat_local_map, invalid param. exit(-1)"
 		exit -1
@@ -48,7 +49,6 @@ function creat_manifest_map()
 	while read line; do
 		key=`echo $line | awk -F '=' '{gsub(" |\t","",$1); print $1}'`
 		value=`echo $line | awk -F '=' '{gsub("^ |\t","",$2); print $2}'`
-		debug_info "key=$key, value=$value"
 		manifestmap["$key"]=$value
 	done < $1
 }
@@ -59,6 +59,10 @@ function creat_manifest_map()
 function dump_map()
 {
 	debug_func "dump map->[$1]     >>>>>"
+	if [ -z $1 ] || [ $# -ne 1 ];then
+		debug_error "dump_map, invalid param. exit(-1)"
+		exit -1
+	fi
 	case "$1" in
 		"manifestmap")
 			if [[ -z ${!manifestmap[@]} ]]; then
