@@ -53,7 +53,7 @@ function load_local_config()
 	#TODO 编译服务器切分支,
 	git_checkout_branch 
 
-	#加载开放平台所有属性在不同平台下的注册表地址
+	#加载开放平台所有属性在不同平台下的注册表文件
 	config_register_path
 }
 

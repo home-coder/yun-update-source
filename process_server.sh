@@ -67,7 +67,8 @@ function process_external_product()
 function process_keyboard_layout()
 {
 	debug_func "process_keyboard_layout"
-	#TODO 应该先去搜寻keycode
+
+	#custom_code+business_model唯一指定一个kl配置文件
 	if [[ ${key:0:2} == "0x" ]]; then
 		case $CURENT_PLATFORM in
 			"dolphin-cantv-h2")
@@ -102,8 +103,9 @@ function call_process_server()
 	##################################################################################################################################################
 	#要兼容一些特殊情况   ：1.特殊属性的特殊处理   :如external_product.txt文件内容的格式定义的很独特，特殊处理
 	#					    2.不同平台下的特殊处理 :如红外遥控配置的kl文件的命名方式有不同,有些兼容android通用平台，有些平台厂商有自定义的命名处理规则
+	#						3.等待以后遇到添加
 	#
-	#其它共性情况统一处理  :如mk文件的操作等
+	#其它共性情况统一处理  :如mk文件的操作等是具有简单的key-value对应填写关系的
 	#
 	#另外注意返回值的判定  :bash 不支持位运算,仅支持逻辑运算; 此处使用0+0+0+0==0方式判定最后的累计结果
 	##################################################################################################################################################
@@ -112,30 +114,39 @@ function call_process_server()
 	process_external_product
 	let retflag=retflag+$?
 
-	#process_keyboard_layout
+	process_keyboard_layout
 	let retflag=retflag+$?
 
+	#下面的for将跳过特殊处理过的key, 然后统一处理普通的属性
 	for key in ${!manifestmap[@]}; do
 		#awk -v tmp="$key" '{print $0}' $REGISTER_PATH
 		pp=$(awk -v tmp="$key" '(tmp==$1){print $2,$3}' $REGISTER_PATH)
-		#prop 和 path是本地注册表中的属性和修改路径
+		#prop 和 path是本地注册表中的属性和修改路径; prop以后将作为key，而value需要从manifest中获取
 		prop=$(echo $pp |awk '{print $1}')
+
+		if [[ "$prop"=="customer_code" || "$prop" =~ ^[0-9] ]]; then
+			continue
+		#inside_model=PRODUCT_MANUFACTURER=product_company=product_hotline=product_email
+		elif [[ "$prop"=="inside_model" || "$prop"=="PRODUCT_MANUFACTURER" || 
+				"$prop"=="product_company" || "$prop"=="product_hotline" || 
+				"$prop"=="product_email"  ]]; then
+			continue
+		fi
+
 		path=$(echo $pp |awk '{print $2}')
-
+		value=${manifestmap["$key"]}
 		debug_import "$key", "$prop, $path",  "是[ ${path##*.} ]类型文件"
-
-		#TODO 跳过特殊处理过的key
 		case ${path##*.} in
 			"mk")
-				write_mk_file "$path" "$key" "$prop";;
+				write_mk_file "$path" "$prop" "$value";;
 			"kl")
-				write_kl_file "$path" "$key" "$prop";;
+				write_kl_file "$path" "$prop" "$value";;
 			"txt")
-				write_txt_file "$path" "$key" "$prop";;
+				write_txt_file "$path" "$prop" "$value";;
 			"cfg")
-				write_cfg_file "$path" "$key" "$prop";;
+				write_cfg_file "$path" "$prop" "$value";;
 			"fex")
-				write_fex_file "$path" "$key" "$prop";;
+				write_fex_file "$path" "$prop" "$value";;
 			*)
 				debug_warn "undefined case [${path##*.}] file"
 			;;
