@@ -39,6 +39,8 @@ yun-update-source
 14.creat_local_map创建满足两种local_org_map 和 local_new_map					[闫军安 江秀杰]	not
 15.考虑修改map键值对的方式写入文件还是直接写入文件比较好						[江秀杰]	not
 16.inside_model和external_produc.tx里面的值在具体流程中的问题					[江秀杰]	not
+17.根据文档说明也要将kl文件的名字和键值等读取到								[江秀杰]     not
+18.kl文件的写入要反复比较多个字段的如wake的情况                                                          [江秀杰]    not
 
 
 
