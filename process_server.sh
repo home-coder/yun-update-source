@@ -69,6 +69,7 @@ function process_keyboard_layout()
 	debug_func "process_keyboard_layout"
 
 	#custom_code+business_model唯一指定一个kl配置文件
+	不同平台到底哪里不同
 	if [[ ${key:0:2} == "0x" ]]; then
 		case $CURENT_PLATFORM in
 			"dolphin-cantv-h2")
