@@ -13,64 +13,21 @@ function format_local_file()
 }
 
 #
-#@PARM: 为固定顺序的数组，include.sh中的external_product数组；@FUNC:按照数组顺序从文件中抓去数据并生成key-value对
+#@PARM: ；@FUNC:按照数组顺序从文件中抓去数据并生成key-value对
+#			  1					2						3				4					5
+#       "inside_model" "PRODUCT_MANUFACTURER" "product_company" "product_hotline" "product_email"
 #
-function map_external_product()
+function write_external_product()
 {
 	debug_func "map_external_product"
 	debug_info $*
-	if [ ! -f $1 ] || [ ! -n $2 ] || [ $# -ne 7 ];then
+	if [ ! -f $1 ] || [ $# -ne 3 ];then
 		debug_error "param is wrong, exit(-1)"
 		exit -1
 	fi
 
-	#"inside_model" "PRODUCT_MANUFACTURER" "product_company" "product_hotline" "product_email"
-	local key_arry=(im, pm, pc, ph, pe)
-	local len=${#key_arry}
-	local val
-
-	#注意格式化预处理数据
-	for ((i=0; i < $len; i++)); do
-		val=`awk -v j="$i" '{print $j}' $1`
-		if [[ $i -eq $len ]]; then
-			val=`echo $val| sed -e 's/,*$//g'`
-		fi
-
-		if [[ "$2"x=="local_org_map"x ]]; then
-			local_org_map["$key[$i]"]=$val
-		elif [[ "$2"x=="local_new_map"x ]]; then
-			local_new_map["$key[$i]"]=$val
-		else
-			debug_error "$2 is not undefined, exit (-1)"
-			exit -1
-		fi
-	done
+	
 }
-
-#
-#@PARAM: path key
-#
-function map_mk_file()
-{
-	debug_func "map_mk_file"	
-}
-
-#
-#PARAM: 1.map的名字，2.属性，3属性所在地址; @FUNC:收集对应地址中的属性key-value，添加到map
-#
-function map_kl_file()
-{
-	debug_func "map_kl_file"
-}
-
-#
-#PARAM: 1.map的名字，2.属性，3属性所在地址; @FUNC:收集对应地址中的属性key-value，添加到map
-#
-function map_txt_file()
-{
-	debug_func "map_txt_file"
-}
-
 
 #
 #@PARAM: 1:path
@@ -272,10 +229,12 @@ function write_cfg_file()
 #!/bin/bash
 #set -x
 . ./include.sh
-PLATFORM_PATH="./r-config/dolphin-cantv-h2_register"&&creat_local_map "local_org_map" && external_product=("inside_model" "PRODUCT_MANUFACTURER" "product_company" "product_hotline" "product_email") && map_external_product "./test_data/external_product.txt" "local_org_map" "${external_product[@]}"
-dump_map "local_org_map"
+#dump_map "local_org_map"
 #write_mk_file "./test_data/dolphin_cantv_h2.mk"  "PRODUCT_MANUFACTURER"  "忆典"
+
+#下面是假设5个属性manifest都有定义的理想情况，实际中忽略这种不可靠的用法
 #write_txt_file "./test_data/external_product.txt"  "BOX"  "迪优美特222=东莞市智而浦实业有限公司=4007772628=3375381074@qq.com" 
+
 #write_kl_file "custom_ir_1044.kl" "128" "POWER   WAKE"
 #write_fex_file "./test_data/sys_config.fex" "boot_init_gpio" "gpio1" "port:PA12<1><default><default><1>"
 #write_cfg_file

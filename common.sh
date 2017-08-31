@@ -9,15 +9,11 @@ set -e
 . ./edit_util.sh
 . ./process_server.sh
 
-#@FUNC：方便map的生成
 #
-#去掉所有#开头行
-#去掉所有空行
-#去掉所有//开头的行
-#去掉行首空格和tab
-#去掉行尾空格和tab
-#去掉所有=开头的行，防止key为空
+#@FUNC: 为方便生成map而对数据做预处理
+#去掉所有#开头行; 去掉所有空行; 去掉所有//开头的行; 去掉行首空格和tab; 去掉行尾空格和tab; 去掉所有=开头的行，防止key为空
 #最后的结果可以是 "key=value" 或者 "key = value"，等号两边的空格在创建map时再处理
+#
 function format_manifest()
 {
 	debug_func "format_manifest"
@@ -35,12 +31,14 @@ function parse_manifest()
 	dump_map "manifestmap"
 }
 
-#包含：1.编译服务器根据如"亿典"切换到亿典分支, 2.将该分支相关需要改动的路径导出
+#
+#@PARAM:null; @FUNC: 获取分支，平台，属性注册表 
+#
 function load_local_config()
 {
 	debug_func "load_local_config"
 	
-	#根据客户唯一标识码, 从属性注册表（随便一个，无论mstar还是全志或者晶晨前两个字段都是一样的）和配置文件"custom_branch_platform"中解析对应的分支和平台
+	#根据客户唯一标识码(厂商+型号), 从属性注册表（随便一个，无论mstar还是全志或者晶晨前两个字段都是一样的）和配置文件"custom_branch_platform"中解析对应的分支和平台
 	manufacturer_tmp=$(awk '($2=="PRODUCT_MANUFACTURER"){print $1}' "./r-config/dolphin-cantv-h2_register")
 	bmodel_tmp=$(awk '($2=="business_model"){print $1}' "./r-config/dolphin-cantv-h2_register")
 	if [[ -z $manufacturer_tmp || -z $bmodel_tmp ]]; then
@@ -55,18 +53,23 @@ function load_local_config()
 	#TODO 编译服务器切分支,
 	git_checkout_branch 
 
-	#TODO 根据平台加载批量修改文件的路径
-	config_platform_file_path
-
-	#将本地原始版本的配置映射为map集合, 对应全局local_org_map对象
-	creat_local_map "local_org_map"
+	#加载开放平台所有属性在不同平台下的注册表地址
+	config_register_path
 }
 
-#修改平台代码的方法
+#
+#
+#TODO
+#
 function update_local_code()
 {
 	debug_func "update_local_code"
+	#检查是否需要更新，返回值: 1->更新并正常写入文件 2->更新但是写入过程出错 3->已是最新版本无需更新
 	call_process_server
+
+	#如果上面返回1，则整体的校验更新结果是否是正确更新了
+	#如果返回2,则退出程序返回更新错误码
+	#如果返回3，则退出程序返回无需更新码
 }
 
 #如果不出意外，直接调用我们原有的jeckens.sh就可以
@@ -75,9 +78,9 @@ function call_jeckens_work()
 	debug_func "call_jeckens_work"
 }
 
-function init_update_source()
+function common_main()
 {
-	debug_func "init_update_source"
+	debug_func "common_main"
 
 	format_manifest $1
 
@@ -92,5 +95,5 @@ function init_update_source()
 }
 
 debug_func "Start ..."
-init_update_source $1
+common_main $1
 debug_func "End=$? ..."

@@ -6,7 +6,7 @@ CCC							 product_company                  ./test_data/external_product.txt
 DDD							  product_hotline                 ./test_data/external_product.txt
 EEE							 product_email                    ./test_data/external_product.txt
 FFF							 PRODUCT_MANUFACTURER             ./test_data/dolphin_cantv_h2.mk
-GGG							customer_code                     ./test_data/custom_ir
+GGG							customer_code                     ./test_data/
 HHH							gpio1                             ./test_data/sys_config.fex
 JJJ
 KKK                         business_model                    ./test_data/env.cfg
