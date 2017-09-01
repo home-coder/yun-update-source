@@ -49,7 +49,7 @@ function process_external_product()
 				use_var="${use_var}=${manifestmap["$var"]}"
 			fi
 		else
-			debug_error "this is a must write data, please ask manifest"
+			debug_error "is null ?! kidding me ? This is a must write data, please ask manifest"
 			exit -1
 		fi
 	done
@@ -137,7 +137,7 @@ function call_process_server()
 		if [[ -n "$pp" ]]; then
 			local prop=$(echo $pp |awk '{print $1}')
 		elif [[ "${key:0:2}" == "0x" ]]; then
-			#下面操作将0x开头的键码事件不作为普通事件封装,并注意变量的静态性
+			#下面操作将0x开头的键码事件不作为普通事件封装,并注意变量的静态性,赋值为空目的是洗掉上一次的值
 			prop=""
 		else
 			debug_warn "Not yet register this prop->$key"
@@ -154,9 +154,13 @@ function call_process_server()
 			continue
 		fi
 
+##---如果还有例外事件，add the Exception Event Function here---#
+
+
 		#inside_model=PRODUCT_MANUFACTURER=product_company=product_hotline=product_email
 		if [[  "$prop" == "inside_model"
-			|| "$prop" == "PRODUCT_MANUFACTURER"
+			#注释掉是因为这个字段在另一处即device下的mk文件中有用到,所以不加入blacklist
+			#|| "$prop" == "PRODUCT_MANUFACTURER"
 			|| "$prop" == "product_company"
 			|| "$prop" == "product_hotline"
 			|| "$prop" == "product_email"  ]]; then

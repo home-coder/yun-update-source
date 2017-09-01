@@ -2,21 +2,26 @@
 # edit_util.sh 文本编辑方法
 #
 
-#
-#@PARAM:本地文件路径 @FUNC:删除行首的空格和tab.目的是搜索以key开头的关键字时是严格的
-#						   因为如果文本中关键字前面有空格或者tab会匹配不到，虽然费时但是便于观察
-#
+#############################################################################
+#@PARAM:本地文件路径 @FUNC:删除行首的空格和tab.目的是搜索以key开头的关键字时
+#       是严格的因为如果文本中关键字前面有空格或者tab会匹配不到，虽然费时但
+#       是便于观察
+#############################################################################
 function format_local_file()
 {
 	sed -i 's/^[ \t]*//g' $1
 }
 
+#############################################################################
+#@FILE : 文本以 # 作为注释， 以 := 作为键和值的关系
 #
 #@PARAM: 1:path
 #		 2:key
 #		 3:value
 #@FUNC : 用 1:= $param_value表示替换结果, 如果不存在则追加 >>
 #
+#@RET  : TODO
+#############################################################################
 function write_mk_file() 
 {
 	debug_func "write_mk_file in"
@@ -29,7 +34,7 @@ function write_mk_file()
 	local param_key=$2
 	local param_value=$3
 
-	format_local_file $param_file
+	#TODO 格式化太不理智了，应该遇到#就过滤掉，然后grep查找key， 不需要是开头以排除空格的情况。format_local_file $param_file
 	if grep -r ^$param_key $param_file 2>&1 1>/dev/null; then
 		sed -i '/^'$param_key'/s/\(.*\):=.*/\1:= '$param_value'/g' $param_file
 	else
@@ -39,12 +44,14 @@ function write_mk_file()
 	fi
 }
 
+#############################################################################
+#@FILE : 文本以 // 作为注释， 以 = 作为键和值的关系
 #
 #@PARAM: 1:path
 #		 2:key
 #		 3:value
 #@FUNC : 用'$param_key'='$param_value'表示替换结果，如果不存在则追加 >>
-#
+#############################################################################
 function write_txt_file()
 {
 	debug_func "write_txt_file"
@@ -67,6 +74,8 @@ function write_txt_file()
 	fi
 }
 
+#############################################################################
+#@FILE : 文本以 # 作为注释， 以 空格 作为键和值的关系
 #
 #@PARAM: 1:path
 #		 2:key
@@ -74,7 +83,7 @@ function write_txt_file()
 #@FUNC : 用'key' '$param_key'    '$sed_value'表示替换结果，如果不存在则追加 >>
 #
 #@RET @1->更新 @0->无需更新
-#
+#############################################################################
 function write_kl_file()
 {
 	debug_func "write_kl_file"
@@ -112,29 +121,35 @@ function write_kl_file()
 		fi
 	done < $param_file
 
-	#比较key的码值要注意可能会有 POWER WAKEUP这种两个部分构成的值
+	#比较key的码值要注意不止类似有 "MENU" 还有 "POWER WAKEUP"这种多项式构成的值,但是没有第三种形式了
 	if [[ $flag -eq 1 ]]; then
 		#这个if当中的key_num 和 入参param_key是相等的, 因为break
 		key_value_1=$(awk -v key_tmp="$key_num" '($2==key_tmp){print $3}' $1)
 		key_value_2=$(awk -v key_tmp="$key_num" '($2==key_tmp){print $4}' $1)
+		TODO 还不如全都是判断$3 $4是否空，而不是判断$#
 		if [[ $# -eq 3 ]]; then
 			#如果对应的键值是不同的，则如下方式更新[原因是kl文件可能是单项或者多项] 并将retflag置1；否则不处理保持retflag的不变
 			param_value="$3"
 			if [[ "$param_value"x != "$key_value_1"x || -n "$key_value_2" ]]; then
-				sed -i '/'[[:space:]]$key_num[[:space:]]'/s/.*/'key' '$key_num'    '$param_value'/g'  $param_file
+				sed -i '/'[[:space:]]$key_num[[:space:]]'/s/.*/'key' '$key_num'   '$param_value'/g'  $param_file
 			fi
 		elif [[ $# -eq 4 ]]; then
 			#TODO
+			debug_error "----"
 		else
 			debug_warn "undefined kl inner format, just support like 1 'POWER' or 2 'POWER WAKE', this case maybe 3 'POWER WAKE HELLO'"
 		fi
 	else
-		add_kv="key $param_key    $3   $4"
 		#TODO
 		if [[ $retflag -eq 0 ]]; then
 			debug_warn "Add new keycod to the file->$param_file"
 		fi
-		echo $add_kv >> $param_file
+		if [[ $# -eq 3 ]]; then
+			add_kv="key $param_key   $3"
+		elif [[ $# -eq 4 ]]; then
+			add_kv="key $param_key   $3     $4"
+		fi
+		echo "$add_kv" >> $param_file
 	fi
 
 	return $retflag
@@ -163,13 +178,15 @@ function write_kl_file()
 #	fi
 }
 
+#############################################################################
+#@FILE : 文本以 ; 作为注释， 以 = 作为键和值的关系, 含有[]这种块区域划分
 #
 #@PARAM: 1:path
 #		 2:section fex文件中括号内选项 boot_init_gpi
 #		 3:item 为item标签下的子项，如pin脚
 #		 4:value
 #@FUNC : 
-#
+#############################################################################
 function write_fex_file()
 {
 	debug_func "write_fex_file"
@@ -241,12 +258,12 @@ function write_fex_file()
 	fi
 }
 
-#
+#############################################################################
 #@PARAM: 1:path
 #		 2:key 
 #		 4:value
 #@FUNC : 
-#
+#############################################################################
 function write_cfg_file()
 {
 	debug_func "write_cfg_file"

@@ -2,6 +2,7 @@
 # common.sh 云编译脚本top
 #
 
+#set -e
 #!/bin/bash
 . ./include.sh
 . ./edit_util.sh
