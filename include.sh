@@ -112,7 +112,7 @@ function git_checkout_branch()
 function config_register_path()
 {
 	debug_func "config_register_path"
-	REGISTER_PATH="./r-config/${CURENT_PLATFORM}_register"
+	REGISTER_PATH="$SCRIPT_PWD/r-config/${CURENT_PLATFORM}_register"
 	if [ ! -f "$REGISTER_PATH" ]; then
 		debug_error "$REGISTER_PATH may be not exsit, exit(-1)"
 		exit -1
