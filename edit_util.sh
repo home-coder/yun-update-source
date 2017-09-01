@@ -104,7 +104,6 @@ function write_kl_file()
 		fi
 
 		key_num=$(echo $line | awk '{print $2}')
-		#TODO 不需要, sed 最后所有都处理掉；假如kl文件中存在重复的key_num将视为人的错误，此处不予处理
 		if [[ x"$key_num" == x"$param_key" ]]; then
 			local flag=1
 			break
