@@ -1,7 +1,6 @@
 #
 # include.sh 环境依赖项
 #
-set -e
 
 declare -A manifestmap=()
 export manifestmap

@@ -13,7 +13,7 @@
 function process_external_product()
 {
 	debug_func "process_external_product"
-	
+
 	#BOX=迪优美特222=东莞市智而浦实业有限公司=4007772628=3375381074@qq.com,
 
 	#根据内部机型属性从manifest获取对应的键值
@@ -36,11 +36,9 @@ function process_external_product()
 	declare -a external_product_tmp
 	for var in "${external_product[@]}"; do
 		external_product_tmp[$i]=$(awk -v var_tmp="$var" '($2==var_tmp){print $1}' $REGISTER_PATH)
-		debug_import "${external_product_tmp[$i]}"
 		let i=i+1
 	done
 	local len=${#external_product_tmp}
-	local flag=0
 	local first=1
 	for var in "${external_product_tmp[@]}"; do
 		if [[ -n "$var" ]]; then
@@ -58,7 +56,7 @@ function process_external_product()
 
 	write_txt_file "$external_product_file" "$inside_model_value" "$use_var"
 
-	[ $flag -eq 0 ] && return 0 || return 1
+	return $?
 }
 
 #
@@ -67,22 +65,28 @@ function process_external_product()
 function process_keyboard_layout()
 {
 	debug_func "process_keyboard_layout"
-
-	#custom_code+business_model唯一指定一个kl配置文件
-	不同平台到底哪里不同
-	if [[ ${key:0:2} == "0x" ]]; then
-		case $CURENT_PLATFORM in
-			"dolphin-cantv-h2")
-				vendor_tmp=$(awk '($2=="customer_code"){print $1}' $REGISTER_PATH)
-				path_tmp=$(awk '($2=="customer_code"){print $3}' $REGISTER_PATH)
-				vendor=${manifestmap["$vendor_tmp"]}
-				path="${path_tmp}_${vendor}.kl"
-				prop=${key:2:4}
-				;;
-				#TODO 638
-				#TODO z11
-		esac
+	debug_info $*
+	if [ -z $1 ] || [ $# -ne 2 ];then
+		debug_error "param is wrong, exit(-1)"
+		exit -1
 	fi
+
+	irlabel=$1
+	key_tmp=$2
+	key=${key_tmp:2:4}
+	value="${manifestmap["$key_tmp"]}"
+
+	#不同平台对kl文件名字不同处理; 比如全志: custom_code+business_model唯一指定一个kl配置文件
+	#TODO 其它平台还需要可扩展
+	case $CURENT_PLATFORM in
+		"dolphin-cantv-h2")
+			path_tmp=$(awk '($2=="customer_code"){print $3}' $REGISTER_PATH)
+			path="$path_tmp/custom_ir_${irlabel}.kl"
+			write_kl_file "$path" "$key" "$value"
+			;;
+			#TODO 638
+			#TODO z11
+	esac
 }
 
 #
@@ -115,33 +119,47 @@ function call_process_server()
 	process_external_product
 	let retflag=retflag+$?
 
-	process_keyboard_layout
-	let retflag=retflag+$?
-
-	#下面的for将跳过特殊处理过的key, 然后统一处理普通的属性
+	#for将跳过特殊处理过的key, 然后统一处理普通的属性
+	local key
 	for key in ${!manifestmap[@]}; do
 		#awk -v tmp="$key" '{print $0}' $REGISTER_PATH
-		pp=$(awk -v tmp="$key" '(tmp==$1){print $2,$3}' $REGISTER_PATH)
 		#prop 和 path是本地注册表中的属性和修改路径; prop以后将作为key，而value需要从manifest中获取
-		prop=$(echo $pp |awk '{print $1}')
 
-		if [[ "$prop"=="customer_code" || "$prop" =~ ^[0-9] ]]; then
-			continue
+		#下面操作将0x开头的键码事件不作为普通事件封装,并注意变量的静态性
+		pp=$(awk -v tmp="$key" '($1==tmp){print $2,$3}' $REGISTER_PATH)
+		if [[ -n "$pp" ]]; then
+			prop=$(echo $pp |awk '{print $1}')
+		elif [[ "${key:0:2}" == "0x" ]]; then
+			prop=""
+		else
+			debug_warn "Not yet register this prop->$key"
+		fi
+
 		#inside_model=PRODUCT_MANUFACTURER=product_company=product_hotline=product_email
-		elif [[ "$prop"=="inside_model" || "$prop"=="PRODUCT_MANUFACTURER" || 
-				"$prop"=="product_company" || "$prop"=="product_hotline" || 
-				"$prop"=="product_email"  ]]; then
+		if [[ "$prop" == "inside_model" || "$prop" == "PRODUCT_MANUFACTURER" || 
+				"$prop" == "product_company" || "$prop" == "product_hotline" || 
+				"$prop" == "product_email"  ]]; then
 			continue
 		fi
 
+		#keyboad layout
+		if [[ "$prop" == "customer_code" ]]; then
+			continue
+		elif [[ "${key:0:2}" == "0x" ]]; then
+			irlabel_tmp=$(awk '($2=="customer_code"){print $1}' $REGISTER_PATH)
+			irlabel=${manifestmap["$irlabel_tmp"]}
+			process_keyboard_layout $irlabel $key
+			let retflag=retflag+$?
+			continue
+		fi
+
+		#normal property
 		path=$(echo $pp |awk '{print $2}')
 		value=${manifestmap["$key"]}
 		debug_import "$key", "$prop, $path",  "是[ ${path##*.} ]类型文件"
 		case ${path##*.} in
 			"mk")
 				write_mk_file "$path" "$prop" "$value";;
-			"kl")
-				write_kl_file "$path" "$prop" "$value";;
 			"txt")
 				write_txt_file "$path" "$prop" "$value";;
 			"cfg")
@@ -158,7 +176,7 @@ function call_process_server()
 
 	debug_func "call_process_server    <<<<<"
 
-	[ $retflag -eq 0 ] && return 0 || return 1
+	return $retflag
 }
 
 #测试用例

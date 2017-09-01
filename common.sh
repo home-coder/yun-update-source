@@ -3,8 +3,6 @@
 #
 
 #!/bin/bash
-
-set -e
 . ./include.sh
 . ./edit_util.sh
 . ./process_server.sh
