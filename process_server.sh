@@ -17,19 +17,19 @@ function process_external_product()
 	#BOX=迪优美特222=东莞市智而浦实业有限公司=4007772628=3375381074@qq.com,
 
 	#根据内部机型属性从manifest获取对应的键值
-	key_index="inside_model"
-	key_tmp=$(awk -v var="$key_index" '($2==var){print $1}' $REGISTER_PATH)
-	inside_model_value=${manifestmap["$key_tmp"]}
+	local key_index="inside_model"
+	local key_tmp=$(awk -v var="$key_index" '($2==var){print $1}' $REGISTER_PATH)
+	local inside_model_value=${manifestmap["$key_tmp"]}
 	if [ -z "$inside_model_value" ]; then
 		debug_error "not exsit 'inside_model'...please ask manifest"
 		exit -1
 	fi
 
-	external_product_file=$(awk -v mindex="$key_index" '($2==mindex){print $3}' $REGISTER_PATH)
+	local external_product_file=$(awk -v mindex="$key_index" '($2==mindex){print $3}' $REGISTER_PATH)
 
 	#取第一个字段在manifest查询到的value做为key, 其余字段在manifest中的查询结果拼接后作为为value
 	#两个for，一个是先找到manifest定义的字段，er个然后通过该字段找到对应的value，并使用 = 拼接成一个value
-	external_product=("PRODUCT_MANUFACTURER" "product_company" "product_hotline" "product_email")
+	local external_product=("PRODUCT_MANUFACTURER" "product_company" "product_hotline" "product_email")
 
 	local i=0
 	local var
@@ -43,7 +43,7 @@ function process_external_product()
 	for var in "${external_product_tmp[@]}"; do
 		if [[ -n "$var" ]]; then
 			if [[ $first -eq 1 ]]; then
-				use_var=${manifestmap["$var"]}
+				local use_var=${manifestmap["$var"]}
 				first=0
 			else
 				use_var="${use_var}=${manifestmap["$var"]}"
@@ -71,22 +71,24 @@ function process_keyboard_layout()
 		exit -1
 	fi
 
-	irlabel=$1
-	key_tmp=$2
-	key=${key_tmp:2:4}
-	value="${manifestmap["$key_tmp"]}"
+	local irlabel=$1
+	local key_tmp=$2
+	local key=${key_tmp:2:4}
+	local value="${manifestmap["$key_tmp"]}"
 
 	#不同平台对kl文件名字不同处理; 比如全志: custom_code+business_model唯一指定一个kl配置文件
 	#TODO 其它平台还需要可扩展
 	case $CURENT_PLATFORM in
 		"dolphin-cantv-h2")
-			path_tmp=$(awk '($2=="customer_code"){print $3}' $REGISTER_PATH)
-			path="$path_tmp/custom_ir_${irlabel}.kl"
-			write_kl_file "$path" "$key" "$value"
+			local path_tmp=$(awk '($2=="customer_code"){print $3}' $REGISTER_PATH)
+			local path="$path_tmp/custom_ir_${irlabel}.kl"
 			;;
 			#TODO 638
 			#TODO z11
 	esac
+
+	#注意不讲$value加""是特意安排的，目的是传入时将字段的个数完全暴露而不当做一个整体, 因为有的键码值是多项式
+	write_kl_file "$path" "$key" $value
 }
 
 #
@@ -105,6 +107,8 @@ function call_process_server()
 		exit -1
 	fi
 
+
+
 	##################################################################################################################################################
 	#要兼容一些特殊情况   ：1.特殊属性的特殊处理   :如external_product.txt文件内容的格式定义的很独特，特殊处理
 	#					    2.不同平台下的特殊处理 :如红外遥控配置的kl文件的命名方式有不同,有些兼容android通用平台，有些平台厂商有自定义的命名处理规则
@@ -115,7 +119,11 @@ function call_process_server()
 	#另外注意返回值的判定  :bash 不支持位运算,仅支持逻辑运算; 此处使用0+0+0+0==0方式判定最后的累计结果
 	##################################################################################################################################################
 
+
+
 	local retflag=0
+
+##---external product----#
 	process_external_product
 	let retflag=retflag+$?
 
@@ -125,37 +133,40 @@ function call_process_server()
 		#awk -v tmp="$key" '{print $0}' $REGISTER_PATH
 		#prop 和 path是本地注册表中的属性和修改路径; prop以后将作为key，而value需要从manifest中获取
 
-		#下面操作将0x开头的键码事件不作为普通事件封装,并注意变量的静态性
-		pp=$(awk -v tmp="$key" '($1==tmp){print $2,$3}' $REGISTER_PATH)
+		local pp=$(awk -v tmp="$key" '($1==tmp){print $2,$3}' $REGISTER_PATH)
 		if [[ -n "$pp" ]]; then
-			prop=$(echo $pp |awk '{print $1}')
+			local prop=$(echo $pp |awk '{print $1}')
 		elif [[ "${key:0:2}" == "0x" ]]; then
+			#下面操作将0x开头的键码事件不作为普通事件封装,并注意变量的静态性
 			prop=""
 		else
 			debug_warn "Not yet register this prop->$key"
 		fi
 
-		#inside_model=PRODUCT_MANUFACTURER=product_company=product_hotline=product_email
-		if [[ "$prop" == "inside_model" || "$prop" == "PRODUCT_MANUFACTURER" || 
-				"$prop" == "product_company" || "$prop" == "product_hotline" || 
-				"$prop" == "product_email"  ]]; then
-			continue
-		fi
-
-		#keyboad layout
+##---keyboad layout---#
 		if [[ "$prop" == "customer_code" ]]; then
 			continue
 		elif [[ "${key:0:2}" == "0x" ]]; then
-			irlabel_tmp=$(awk '($2=="customer_code"){print $1}' $REGISTER_PATH)
-			irlabel=${manifestmap["$irlabel_tmp"]}
+			local irlabel_tmp=$(awk '($2=="customer_code"){print $1}' $REGISTER_PATH)
+			local irlabel=${manifestmap["$irlabel_tmp"]}
 			process_keyboard_layout $irlabel $key
 			let retflag=retflag+$?
 			continue
 		fi
 
-		#normal property
-		path=$(echo $pp |awk '{print $2}')
-		value=${manifestmap["$key"]}
+		#inside_model=PRODUCT_MANUFACTURER=product_company=product_hotline=product_email
+		if [[  "$prop" == "inside_model"
+			|| "$prop" == "PRODUCT_MANUFACTURER"
+			|| "$prop" == "product_company"
+			|| "$prop" == "product_hotline"
+			|| "$prop" == "product_email"  ]]; then
+
+			continue
+		fi
+
+##---normal property---#
+		local path=$(echo $pp |awk '{print $2}')
+		local value=${manifestmap["$key"]}
 		debug_import "$key", "$prop, $path",  "是[ ${path##*.} ]类型文件"
 		case ${path##*.} in
 			"mk")
@@ -168,9 +179,9 @@ function call_process_server()
 				write_fex_file "$path" "$prop" "$value";;
 			*)
 				debug_warn "undefined case [${path##*.}] file"
-			;;
+				;;
 		esac
-		
+
 		let retflag=retflag+$?
 	done
 

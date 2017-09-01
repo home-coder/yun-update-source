@@ -37,8 +37,8 @@ function load_local_config()
 	debug_func "load_local_config"
 	
 	#根据客户唯一标识码(厂商+型号), 从属性注册表（随便一个，无论mstar还是全志或者晶晨前两个字段都是一样的）和配置文件"custom_branch_platform"中解析对应的分支和平台
-	manufacturer_tmp=$(awk '($2=="PRODUCT_MANUFACTURER"){print $1}' "./r-config/dolphin-cantv-h2_register")
-	bmodel_tmp=$(awk '($2=="business_model"){print $1}' "./r-config/dolphin-cantv-h2_register")
+	manufacturer_tmp=$(awk '($2=="PRODUCT_MANUFACTURER"){print $1}' "$SCRIPT_PWD/r-config/dolphin-cantv-h2_register")
+	bmodel_tmp=$(awk '($2=="business_model"){print $1}' "$SCRIPT_PWD/r-config/dolphin-cantv-h2_register")
 	if [[ -z $manufacturer_tmp || -z $bmodel_tmp ]]; then
 		debug_error "Please check the register excel, exit(-1)"
 		exit -1
@@ -57,7 +57,9 @@ function load_local_config()
 
 #
 #
-#TODO
+#@FUNC: 使用一次针对manifestmap整体的扫描确定更新情况，如果更新便直接更新。
+#       处理过程中要求每个事件都有确认是否更新的返回标志，并通过0+0+0+0==0判定结果
+#RET  : 
 #
 function update_local_code()
 {

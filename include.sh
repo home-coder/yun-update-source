@@ -2,12 +2,14 @@
 # include.sh 环境依赖项
 #
 
+export SCRIPT_PWD=`pwd`
+
 declare -A manifestmap=()
 export manifestmap
 
 export CURENT_BRANCH  CURENT_PLATFORM REGISTER_PATH
 
-CBP_PATH="./r-config/custom_branch_platform"
+CBP_PATH="$SCRIPT_PWD/r-config/custom_branch_platform"
 
 
 function debug_import()
@@ -46,8 +48,8 @@ function creat_manifest_map()
 		exit -1
 	fi
 	while read line; do
-		key=`echo $line | awk -F '=' '{gsub(" |\t","",$1); print $1}'`
-		value=`echo $line | awk -F '=' '{gsub("^ |\t","",$2); print $2}'`
+		local key=`echo $line | awk -F '=' '{gsub(" |\t","",$1); print $1}'`
+		local value=`echo $line | awk -F '=' '{gsub("^ |\t","",$2); print $2}'`
 		manifestmap["$key"]=$value
 	done < $1
 }
@@ -119,7 +121,7 @@ function config_register_path()
 }
 
 #测试用例
-#!/bin/bash
+##!/bin/bash
 #set -x
 #debug_important "hello world"
 #debug_func "hello world"
