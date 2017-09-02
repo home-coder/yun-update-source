@@ -7,7 +7,7 @@ export SCRIPT_PWD=`pwd`
 declare -A manifestmap=()
 export manifestmap
 
-export CURENT_BRANCH  CURENT_DEVICE REGISTER_PATH
+export CURENT_BRANCH  CURENT_DEVICE DEVICE_REGISTER_PATH
 
 CBP_PATH="$SCRIPT_PWD/r-config/custom_branch_device"
 
@@ -112,12 +112,12 @@ function git_checkout_branch()
 function config_register_path()
 {
 	debug_func "config_register_path"
-	REGISTER_PATH="$SCRIPT_PWD/r-config/${CURENT_DEVICE}_register"
-	if [ ! -f "$REGISTER_PATH" ]; then
-		debug_error "$REGISTER_PATH may be not exsit, exit(-1)"
+	DEVICE_REGISTER_PATH="$SCRIPT_PWD/r-config/${CURENT_DEVICE}_register"
+	if [ ! -f "$DEVICE_REGISTER_PATH" ]; then
+		debug_error "$DEVICE_REGISTER_PATH may be not exsit, exit(-1)"
 		exit -1
 	fi
-	debug_info "current registed_path-->$REGISTER_PATH"
+	debug_info "current registed_path-->$DEVICE_REGISTER_PATH"
 }
 
 #测试用例

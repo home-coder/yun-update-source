@@ -18,14 +18,14 @@ function process_external_product()
 
 	#根据内部机型属性从manifest获取对应的键值
 	local key_index="inside_model"
-	local key_tmp=$(awk -v var="$key_index" '($2==var){print $1}' $REGISTER_PATH)
+	local key_tmp=$(awk -v var="$key_index" '($2==var){print $1}' $DEVICE_REGISTER_PATH)
 	local inside_model_value=${manifestmap["$key_tmp"]}
 	if [ -z "$inside_model_value" ]; then
 		debug_error "not exsit 'inside_model'...please ask manifest"
 		exit -1
 	fi
 
-	local external_product_file=$(awk -v mindex="$key_index" '($2==mindex){print $3}' $REGISTER_PATH)
+	local external_product_file=$(awk -v mindex="$key_index" '($2==mindex){print $3}' $DEVICE_REGISTER_PATH)
 
 	#取第一个字段在manifest查询到的value做为key, 其余字段在manifest中的查询结果拼接后作为为value
 	#两个for，一个是先找到manifest定义的字段，er个然后通过该字段找到对应的value，并使用 = 拼接成一个value
@@ -35,7 +35,7 @@ function process_external_product()
 	local var
 	declare -a external_product_tmp
 	for var in "${external_product[@]}"; do
-		external_product_tmp[$i]=$(awk -v var_tmp="$var" '($2==var_tmp){print $1}' $REGISTER_PATH)
+		external_product_tmp[$i]=$(awk -v var_tmp="$var" '($2==var_tmp){print $1}' $DEVICE_REGISTER_PATH)
 		let i=i+1
 	done
 	local len=${#external_product_tmp}
@@ -78,7 +78,7 @@ function process_keyboard_layout()
 
 	#不同平台对kl文件名字不同处理; 比如全志: custom_code+business_model唯一指定一个kl配置文件
 	#TODO 其它平台还需要可扩展
-	local path_tmp=$(awk '($2=="customer_code"){print $3}' $REGISTER_PATH)
+	local path_tmp=$(awk '($2=="customer_code"){print $3}' $DEVICE_REGISTER_PATH)
 	#TODO 如果path_tmp后面有/就去掉这个/
 	case $CURENT_DEVICE in
 		"dolphin-cantv-h2")
@@ -104,8 +104,8 @@ function call_process_server()
 {
 	debug_func "call_process_server    >>>>>"
 
-	if [[ ! -f "$REGISTER_PATH" ]]; then
-		debug_error "$REGISTER_PATH is not exsit, please run 'config_register_path' first, exit (-1)"
+	if [[ ! -f "$DEVICE_REGISTER_PATH" ]]; then
+		debug_error "$DEVICE_REGISTER_PATH is not exsit, please run 'config_register_path' first, exit (-1)"
 		exit -1
 	fi
 
@@ -132,10 +132,10 @@ function call_process_server()
 	#for将跳过特殊处理过的key, 然后统一处理普通的属性
 	local key
 	for key in ${!manifestmap[@]}; do
-		#awk -v tmp="$key" '{print $0}' $REGISTER_PATH
+		#awk -v tmp="$key" '{print $0}' $DEVICE_REGISTER_PATH
 		#prop 和 path是本地注册表中的属性和修改路径; prop以后将作为key，而value需要从manifest中获取
 
-		local pp=$(awk -v tmp="$key" '($1==tmp){print $2,$3}' $REGISTER_PATH)
+		local pp=$(awk -v tmp="$key" '($1==tmp){print $2,$3}' $DEVICE_REGISTER_PATH)
 		if [[ -n "$pp" ]]; then
 			local prop=$(echo $pp |awk '{print $1}')
 		elif [[ "${key:0:2}" == "0x" ]]; then
@@ -150,7 +150,7 @@ function call_process_server()
 		if [[ "$prop" == "customer_code" ]]; then
 			continue
 		elif [[ "${key:0:2}" == "0x" ]]; then
-			local irlabel_tmp=$(awk '($2=="customer_code"){print $1}' $REGISTER_PATH)
+			local irlabel_tmp=$(awk '($2=="customer_code"){print $1}' $DEVICE_REGISTER_PATH)
 			local irlabel=${manifestmap["$irlabel_tmp"]}
 			process_keyboard_layout $irlabel $key
 			let retflag=retflag+$?
