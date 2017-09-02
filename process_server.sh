@@ -86,7 +86,7 @@ function process_keyboard_layout()
 	case $CURENT_DEVICE in
 		"dolphin-cantv-h2")
 			#TODO 改成文件名，然后统一处理路径问题
-			local path="$path_tmp/custom_ir_${irlabel}.kl"
+			local path="$path_tmp/customer_ir_${irlabel}.kl"
 			;;
 			#TODO 638
 			#TODO z11
