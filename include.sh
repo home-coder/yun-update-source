@@ -2,16 +2,18 @@
 # include.sh 环境依赖项
 #
 
-export SCRIPT_PWD=`pwd`
+#XXX 所有的变量不使用export关键字，防止多线程调用shell时引起的环境变量污染
+
+SCRIPT_PWD=`pwd`
 
 declare -A manifestmap=()
-export manifestmap
+# manifestmap
 
-export CURENT_BRANCH  CURENT_DEVICE DEVICE_REGISTER_PATH
+#CURENT_BRANCH  CURENT_DEVICE DEVICE_REGISTER_PATH
 
-export CBP_PATH="$SCRIPT_PWD/r-config/custom_branch_device"
+CBP_PATH="$SCRIPT_PWD/r-config/custom_branch_device"
 
-export UPDATE_FLAG
+#UPDATE_FLAG
 
 function debug_import()
 {
