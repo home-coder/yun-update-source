@@ -55,7 +55,7 @@ function creat_manifest_map()
 }
 
 #
-#@PARM:以字符串形式对应map， @FUNC: 根据名称分别dump。 此方法有重复代码，未优化
+#@PARM:以字符串形式对应map， @FUNC: 根据名称分别dump。XXX:可以简化吗
 #
 function dump_map()
 {

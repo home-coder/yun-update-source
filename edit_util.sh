@@ -136,7 +136,7 @@ function write_kl_file()
 				debug_info "change "key $key_num  $key_value_1 $key_value_2" -->"key $key_num  $param_value_1""
 				retflag=1
 			else
-				debug_info "same code, skip"
+				debug_info "same code, skip 666"
 			fi
 		elif [[ $# -eq 4 ]]; then
 			param_value_1="$3"
@@ -147,7 +147,7 @@ function write_kl_file()
 				debug_info "change "key $key_num  $key_value_1 $key_value_2" -->"key $key_num  $param_value_1 $param_value_2""
 				retflag=1
 			else
-				debug_info "same code, skip"
+				debug_info "same code, skip 666"
 			fi
 		else
 			debug_error "undefined kl inner format, just support like 1 'POWER' or 2 'POWER WAKE', this case maybe 3 'POWER WAKE HELLO', exit (-1)"
@@ -206,6 +206,7 @@ function write_fex_file()
 	while read line; do
 		let num=num+1
 
+		#块区[ ]开始标志
 		if [ X"$line" = X"[$param_section]" ];then
 			has_section=1
 			begin_section=1
@@ -213,18 +214,22 @@ function write_fex_file()
 		fi
 
 		if [ $begin_section -eq 1 ];then
+			#块区[ ]结束标志
 			end_section=$(echo $line | awk 'BEGIN{ret=0} /^\[.*\]$/{ret=1} END{print ret}')
 			if [ $end_section -eq 1 ];then
 				break
 			fi
 
+			#跳过 ; 开头的注释行
 			need_ignore=$(echo $line | awk 'BEGIN{ret=0} /^;/{ret=1} /^$/{ret=1} END{print ret}')
 			if [ $need_ignore -eq 1 ];then
 				continue
 			fi
+			#获取过程
 			item=$(echo $line | awk -F= '{gsub(" |\t","",$1); print $1}')
 			value=$(echo $line | awk -F= '{gsub(" |\t","",$2); print $2}')
 
+			#匹配过程
 			if [ "$param_item"x == "$item"x ];then
 				has_item=1
 				debug_import "fex modify line num = $num, section[$param_section], item[$param_item], value[$param_value]"
@@ -237,6 +242,7 @@ function write_fex_file()
 
 	#sed -i '99s/'"port:PA15<1><default><default><1>"'/'"port:PA12<1><default><default><1>"'/' $param_file
 
+	#业务逻辑
 	if [[ ($has_section -ne 0)&&($has_item -ne 0)&&("$value"x != "$param_value"x) ]]; then
 		sed -i "${num}s/$value/$param_value/" $param_file
 		debug_import "$num: $param_item = $param_value"
