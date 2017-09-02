@@ -65,18 +65,29 @@ function load_local_config()
 function update_local_code()
 {
 	debug_func "update_local_code"
-	#检查是否需要更新，返回值: 1->更新并正常写入文件 2->更新但是写入过程出错 3->已是最新版本无需更新
+	#检查是否需要更新，返回值: 1->更新并正常写入文件 0->已是最新版本无需更新
 	call_process_server
-
-	#如果上面返回1，则整体的校验更新结果是否是正确更新了
-	#如果返回2,则退出程序返回更新错误码
-	#如果返回3，则退出程序返回无需更新码
+	UPDATE_FLAG=$?
+	if [[ $UPDATE_FLAG -eq 0 ]]; then
+		debug_import "No changes, nothing to commit. It is latest Version"
+	else
+		debug_import "Some changes, It will update itself ..."
+		sleep 3
+	fi
 }
 
-#如果不出意外，直接调用我们原有的jeckens.sh就可以
+#TODO 如果不出意外，直接调用我们原有的jeckens.sh就可以
 function call_jeckens_work()
 {
 	debug_func "call_jeckens_work"
+}
+
+#TODO 去include.sh中实现UPDATE_FLAG整个代码环境的更新提交工作
+function wind_up_work()
+{
+	debug_func "wind_up_work"
+	#如果编译返回值没有出错就提交代码
+	#如果出错就git reset
 }
 
 function common_main()
@@ -89,10 +100,11 @@ function common_main()
 
 	load_local_config
 
-	#TODO 注意接收返回值
 	update_local_code
 
 	call_jeckens_work
+
+	wind_up_work
 }
 
 debug_func "Start ..."

@@ -54,9 +54,12 @@ function process_external_product()
 		fi
 	done
 
+	local retep=0
 	write_txt_file "$external_product_file" "$inside_model_value" "$use_var"
+	retep=$?
+	[ $retep -eq 1 ] && git add $path || git checkout $path 
 
-	return $?
+	return $retep
 }
 
 #
@@ -90,7 +93,12 @@ function process_keyboard_layout()
 	esac
 
 	#注意不讲$value加""是特意安排的，目的是传入时将字段的个数完全暴露而不当做一个整体, 因为有的键码值是多项式
+	local retkl=0
 	write_kl_file "$path" "$key" $value
+	retkl=$?
+	[ $retkl -eq 1 ] && git add $path || git checkout $path 
+
+	return $retkl
 }
 
 #
@@ -143,7 +151,7 @@ function call_process_server()
 			#TODO 是不是要 continue
 			prop=""
 		else
-			debug_warn "Not yet register this prop->$key"
+			debug_warn "Not yet register this '$key' in 'DEVICE_REGISTER_PATH'"
 		fi
 
 ##---keyboad layout---#
@@ -185,11 +193,18 @@ function call_process_server()
 			"fex")
 				write_fex_file "$path" "$prop" "$value";;
 			*)
-				debug_warn "undefined case [${path##*.}] file"
+				debug_warn "undefined file-format [${path##*.}], the key->$key. Please add a case for it or modify 'DEVICE_REGISTER_PATH'"
 				;;
 		esac
 
-		let retflag=retflag+$?
+		retnormal=$?
+		if [[ -f "$path" ]]; then
+			[ $retnormal -eq 1 ] && git add $path || git checkout $path
+		else
+			debug_warn "the '$key' de path->$path is not exsit"
+		fi
+
+		let retflag=retflag+$retnormal
 	done
 
 	debug_func "call_process_server    <<<<<"

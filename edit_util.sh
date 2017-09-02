@@ -24,7 +24,7 @@ function format_local_file()
 #############################################################################
 function write_mk_file() 
 {
-	debug_func "write_mk_file in"
+	debug_func "write_mk_file"
 	debug_info $*
 	if [ ! -f $1 ] || [ $# -ne 3 ];then
 		debug_error "param is wrong, exit(-1)"
@@ -51,6 +51,8 @@ function write_mk_file()
 #		 2:key
 #		 3:value
 #@FUNC : 用'$param_key'='$param_value'表示替换结果，如果不存在则追加 >>
+#
+#RET   : @1->更新 @0->无需更新 TODO
 #############################################################################
 function write_txt_file()
 {
@@ -82,7 +84,7 @@ function write_txt_file()
 #		 3:value
 #@FUNC : 用'key' '$param_key'    '$value'表示替换结果，如果不存在则追加 >>
 #
-#@RET @1->更新 @0->无需更新
+#@RET  : @1->更新 @0->无需更新
 #############################################################################
 function write_kl_file()
 {

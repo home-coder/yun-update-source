@@ -9,8 +9,9 @@ export manifestmap
 
 export CURENT_BRANCH  CURENT_DEVICE DEVICE_REGISTER_PATH
 
-CBP_PATH="$SCRIPT_PWD/r-config/custom_branch_device"
+export CBP_PATH="$SCRIPT_PWD/r-config/custom_branch_device"
 
+export UPDATE_FLAG
 
 function debug_import()
 {
