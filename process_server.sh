@@ -8,7 +8,7 @@
 #
 #@RET :@1->更新并正常写入文件 @0->已是最新版本无需更新
 #
-#特殊说明，此方法是在文档中明确说明各个字段为必填选项情况下成立
+#XXX:此方法是在文档中明确说明各个字段为必填选项情况下成立
 #
 function process_external_product()
 {
@@ -78,9 +78,11 @@ function process_keyboard_layout()
 
 	#不同平台对kl文件名字不同处理; 比如全志: custom_code+business_model唯一指定一个kl配置文件
 	#TODO 其它平台还需要可扩展
-	case $CURENT_PLATFORM in
+	local path_tmp=$(awk '($2=="customer_code"){print $3}' $REGISTER_PATH)
+	#TODO 如果path_tmp后面有/就去掉这个/
+	case $CURENT_DEVICE in
 		"dolphin-cantv-h2")
-			local path_tmp=$(awk '($2=="customer_code"){print $3}' $REGISTER_PATH)
+			#TODO 改成文件名，然后统一处理路径问题
 			local path="$path_tmp/custom_ir_${irlabel}.kl"
 			;;
 			#TODO 638
@@ -103,7 +105,7 @@ function call_process_server()
 	debug_func "call_process_server    >>>>>"
 
 	if [[ ! -f "$REGISTER_PATH" ]]; then
-		debug_error "$REGISTER_PATH is not exsit, please run 'config_platform_file_path' first, exit (-1)"
+		debug_error "$REGISTER_PATH is not exsit, please run 'config_register_path' first, exit (-1)"
 		exit -1
 	fi
 
@@ -138,6 +140,7 @@ function call_process_server()
 			local prop=$(echo $pp |awk '{print $1}')
 		elif [[ "${key:0:2}" == "0x" ]]; then
 			#下面操作将0x开头的键码事件不作为普通事件封装,并注意变量的静态性,赋值为空目的是洗掉上一次的值
+			#TODO 是不是要 continue
 			prop=""
 		else
 			debug_warn "Not yet register this prop->$key"
@@ -157,7 +160,7 @@ function call_process_server()
 ##---如果还有例外事件，add the Exception Event Function here---#
 
 
-		#inside_model=PRODUCT_MANUFACTURER=product_company=product_hotline=product_email
+#---black list---#
 		if [[  "$prop" == "inside_model"
 			#注释掉是因为这个字段在另一处即device下的mk文件中有用到,所以不加入blacklist
 			#|| "$prop" == "PRODUCT_MANUFACTURER"
@@ -168,7 +171,7 @@ function call_process_server()
 			continue
 		fi
 
-##---normal property---#
+##---normal event---#
 		local path=$(echo $pp |awk '{print $2}')
 		local value=${manifestmap["$key"]}
 		debug_import "$key", "$prop, $path",  "是[ ${path##*.} ]类型文件"
@@ -191,7 +194,7 @@ function call_process_server()
 
 	debug_func "call_process_server    <<<<<"
 
-	return $retflag
+	[ $retflag -eq 0 ] && return 0 || return 1
 }
 
 #测试用例

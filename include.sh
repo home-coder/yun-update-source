@@ -7,9 +7,9 @@ export SCRIPT_PWD=`pwd`
 declare -A manifestmap=()
 export manifestmap
 
-export CURENT_BRANCH  CURENT_PLATFORM REGISTER_PATH
+export CURENT_BRANCH  CURENT_DEVICE REGISTER_PATH
 
-CBP_PATH="$SCRIPT_PWD/r-config/custom_branch_platform"
+CBP_PATH="$SCRIPT_PWD/r-config/custom_branch_device"
 
 
 function debug_import()
@@ -87,19 +87,19 @@ function dump_map()
 }
 
 #
-#@PARAM: 客户的名字；@FUNC: 根据一个唯一标示组合从配置"./r-config/custom_branch_platform"获取对应的分支以及硬件平台映射表路径
+#@PARAM: 客户的名字；@FUNC: 根据一个唯一标示组合从配置"./r-config/custom_branch_device"获取对应的分支以及硬件平台映射表路径
 #
-function get_branch_and_platform()
+function get_branch_and_device()
 {
-	debug_func "get_branch_and_platform"
+	debug_func "get_branch_and_device"
 	local manufacturer  bmodel
 	brpf=$(awk -F " " -v manufacturer="$1" -v bmodel="$2" '($1==manufacturer && $2==bmodel) {print $3,$4}' $CBP_PATH)
 	if [ -n "$brpf" ]; then
 		CURENT_BRANCH=$(echo $brpf | awk '{print $1}')
-		CURENT_PLATFORM=$(echo $brpf | awk '{print $2}')
-		debug_import "branch->$CURENT_BRANCH  platform->$CURENT_PLATFORM"
+		CURENT_DEVICE=$(echo $brpf | awk '{print $2}')
+		debug_import "branch->$CURENT_BRANCH  device->$CURENT_DEVICE"
 	else
-		debug_error "the file "custom_branch_platform" is not match this custom Id[$1, $2], exit(-1)"
+		debug_error "the file "custom_branch_device" is not match this custom Id[$1, $2], exit(-1)"
 		exit -1
 	fi
 }
@@ -112,7 +112,7 @@ function git_checkout_branch()
 function config_register_path()
 {
 	debug_func "config_register_path"
-	REGISTER_PATH="$SCRIPT_PWD/r-config/${CURENT_PLATFORM}_register"
+	REGISTER_PATH="$SCRIPT_PWD/r-config/${CURENT_DEVICE}_register"
 	if [ ! -f "$REGISTER_PATH" ]; then
 		debug_error "$REGISTER_PATH may be not exsit, exit(-1)"
 		exit -1
@@ -129,5 +129,5 @@ function config_register_path()
 #debug_warn "----------------"
 #debug_error "----------------"
 #dump_map local_org_map
-#get_branch_and_platform "亿典" "BBC_H12"
+#get_branch_and_device "亿典" "BBC_H12"
 #dump_map "local_org_map"
