@@ -72,7 +72,8 @@ function update_local_code()
 		debug_import "No changes, nothing to commit. It is latest Version"
 	else
 		debug_import "Some changes, It will update itself ..."
-		sleep 3
+		#XXX Beta版加下面的reset作为结果diff使用，Release 将去除该行
+		git reset 2>&1 1>/dev/null
 	fi
 }
 
