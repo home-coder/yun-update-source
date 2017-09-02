@@ -8,7 +8,7 @@
 #
 #@RET :@1->更新并正常写入文件 @0->已是最新版本无需更新
 #
-#XXX:此方法是在文档中明确说明各个字段为必填选项情况下成立
+#XXX:此方法是在文档中明确说明各个字段为必填选项情况下成立, 而且txt中的顺序不变的情况。这是external_product.txt文件设计的缺陷
 #
 function process_external_product()
 {
@@ -57,7 +57,7 @@ function process_external_product()
 	local retep=0
 	write_txt_file "$external_product_file" "$inside_model_value" "$use_var"
 	retep=$?
-	[ $retep -eq 1 ] && git add $path || git checkout $path 
+	[ $retep -eq 1 ] && git add $path || git checkout $path 2>&1 1>/dev/null
 
 	return $retep
 }
@@ -92,8 +92,8 @@ function process_keyboard_layout()
 			#TODO z11
 	esac
 
-	#注意不讲$value加""是特意安排的，目的是传入时将字段的个数完全暴露而不当做一个整体, 因为有的键码值是多项式
 	local retkl=0
+	#XXX 注意此处不将$value加""是特意安排的，目的是传入时将字段的个数完全暴露而不当做一个整体, 因为有的键码值是多项式
 	write_kl_file "$path" "$key" $value
 	retkl=$?
 	[ $retkl -eq 1 ] && git add $path || git checkout $path 
@@ -180,7 +180,7 @@ function call_process_server()
 		fi
 
 ##---normal event---#
-		local path=$(echo $pp |awk '{print $2}')
+		local path=$(echo "$pp" |awk '{print $2}')
 		local value=${manifestmap["$key"]}
 		debug_import "$key", "$prop, $path",  "是[ ${path##*.} ]类型文件"
 		case ${path##*.} in

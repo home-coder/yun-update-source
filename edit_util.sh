@@ -3,9 +3,10 @@
 #
 
 #############################################################################
-#@PARAM:本地文件路径 @FUNC:删除行首的空格和tab.目的是搜索以key开头的关键字时
-#       是严格的因为如果文本中关键字前面有空格或者tab会匹配不到，虽然费时但
-#       是便于观察
+#@PARAM:本地文件路径 
+#@FUNC:删除行首的空格和tab.目的是搜索以key开头的关键字时是严格的因为如果
+#	   文本中关键字前面有空格或者tab会匹配不到，虽然费时但是便于观察
+#
 #############################################################################
 function format_local_file()
 {
@@ -13,9 +14,7 @@ function format_local_file()
 }
 
 #############################################################################
-#@FILE : 文本以 # 作为注释， 以 := 作为键和值的关系
-#
-#@PARAM: 1:path
+#@PARAM: 1:path 文本以 # 作为注释， 以 := 作为键和值的关系
 #		 2:key
 #		 3:value
 #@FUNC : 用 1:= $param_value表示替换结果, 如果不存在则追加 >>
@@ -45,9 +44,7 @@ function write_mk_file()
 }
 
 #############################################################################
-#@FILE : 文本以 // 作为注释， 以 = 作为键和值的关系
-#
-#@PARAM: 1:path
+#@PARAM: 1:path 文本以 // 作为注释， 以 = 作为键和值的关系
 #		 2:key
 #		 3:value
 #@FUNC : 用'$param_key'='$param_value'表示替换结果，如果不存在则追加 >>
@@ -77,9 +74,8 @@ function write_txt_file()
 }
 
 #############################################################################
-#@FILE : 文本以 # 作为注释， 以 空格 作为键和值的关系; XXX:支持key的value为单项或者两项如"POWER  WAKE"
-#
-#@PARAM: 1:path
+#@PARAM: 1:path 文本以 # 作为注释， 以 空格 作为键和值的关系; 
+#			    XXX:支持key的value为单项或者两项如"POWER  WAKE"
 #		 2:key
 #		 3:value
 #@FUNC : 用'key' '$param_key'    '$value'表示替换结果，如果不存在则追加 >>
@@ -110,12 +106,12 @@ function write_kl_file()
 
 	local flag
 	while read line; do
-		need_ignore=$(echo $line | awk 'BEGIN{ret=0} /^#/{ret=1} /^$/{ret=1} END{print ret}')
+		need_ignore=$(echo "$line" | awk 'BEGIN{ret=0} /^#/{ret=1} /^$/{ret=1} END{print ret}')
 		if [ $need_ignore -eq 1 ];then
 			continue
 		fi
 
-		key_num=$(echo $line | awk '{print $2}')
+		key_num=$(echo "$line" | awk '{print $2}')
 		#如果在kl文件中匹配到了keycode就跳出循环，哪怕下面还有重复值(因为后续的sed操作会检查所有重复值无需担心)
 		if [[ x"$key_num" == x"$param_key" ]]; then
 			flag=1
@@ -173,9 +169,7 @@ function write_kl_file()
 }
 
 #############################################################################
-#@FILE : 文本以 ; 作为注释， 以 = 作为键和值的关系, 含有[]这种块区域划分
-#
-#@PARAM: 1:path
+#@PARAM: 1:path 文本以 ; 作为注释， 以 = 作为键和值的关系, 含有[]这种块区域划分
 #		 2:section fex文件中括号内选项 boot_init_gpi
 #		 3:item 为item标签下的子项，如pin脚
 #		 4:value
