@@ -130,6 +130,7 @@ function write_kl_file()
 			param_value_1="$3"
 			#如果对应的键值是不同的，则如下方式更新[原因是本地kl文件可能是单项或者多项] 并将retflag置1；否则维持不变依据0+0+0==0
 			if [[ "$param_value_1"x != "$key_value_1"x || -n "$key_value_2" ]]; then
+				#'key\([[:space:]]\)\+'起到防止这一行是#注释行的话引起的源文件污染
 				sed -i '/'^'key\([[:space:]]\)\+'$key_num[[:space:]]'/s/.*/'key' '$key_num'   '$param_value_1'/g'  $param_file
 				debug_info "change "key $key_num  $key_value_1 $key_value_2" -->"key $key_num  $param_value_1""
 				retflag=1
@@ -141,6 +142,7 @@ function write_kl_file()
 			param_value_2="$4"
 			#如果对应的键值是不同的，则如下方式更新[原因是本地kl文件可能是单项或者多项] 并将retflag置1；否则维持不变依据0+0+0==0
 			if [[ "$param_value_1"x != "$key_value_1"x ||  "$param_value_2"x != "$key_value_2"x ]]; then
+				#'key\([[:space:]]\)\+'起到防止这一行是#注释行的话引起的源文件污染
 				sed -i '/'^'key\([[:space:]]\)\+'$key_num[[:space:]]'/s/.*/'key' '$key_num'   '$param_value_1'   '$param_value_2'/g'  $param_file
 				debug_info "change "key $key_num  $key_value_1 $key_value_2" -->"key $key_num  $param_value_1 $param_value_2""
 				retflag=1
