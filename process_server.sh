@@ -31,10 +31,12 @@ function process_external_product()
 		debug_warn "the file->$path is invalid"
 	fi
 
+	#*******************************************************************************************************
 	#取第一个字段在manifest查询到的value做为key, 其余字段在manifest中的查询结果拼接后作为为value
 	#两个for，一个是先找到manifest定义的字段，er个然后通过该字段找到对应的value，并使用 = 拼接成一个value
+	#XXX: 此处实现也可以直接使用 = 等号按顺序拼接。 下面方法麻烦是有其他用途：判断是否某个字段没有
+	#*******************************************************************************************************
 	local external_product=("PRODUCT_MANUFACTURER" "product_company" "product_hotline" "product_email")
-
 	local i=0
 	local var
 	declare -a external_product_tmp
