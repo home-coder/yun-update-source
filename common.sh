@@ -56,6 +56,10 @@ function load_local_config()
 	config_register_path
 }
 
+#
+#
+#TODO
+#
 function call_version_manager()
 {
 	debug_func "call_version_manager, $1"
@@ -116,6 +120,6 @@ function common_main()
 	wind_up_work
 }
 
-debug_func "Start ..."
+debug_func "Start ..........................................................."
 common_main $1
-debug_func "End=$? ..."
+debug_func "End=$? .........................................................."
