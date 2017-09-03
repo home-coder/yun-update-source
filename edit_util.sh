@@ -15,32 +15,53 @@ function format_local_file()
 
 #############################################################################
 #@PARAM: 1:path 文本以 # 作为注释， 以 := 作为键和值的关系
+#				FIXME: 文本中关键字如'PRODUCT_MANUFACTURER'必须在行首,前面不要有空格
 #		 2:key
 #		 3:value
 #@FUNC : 用 1:= $param_value表示替换结果, 如果不存在则追加 >>
 #
-#@RET  : TODO
+#@RET  : @1->更新 @0->无需更新
 #############################################################################
 function write_mk_file() 
 {
 	debug_func "write_mk_file"
 	debug_info $*
-	if [ ! -f $1 ] || [ $# -ne 3 ];then
+	if [ $# -ne 3 ];then
 		debug_error "param is wrong, exit(-1)"
 		exit -1
 	fi
+
+	local retflag=0
+
+	if [ ! -f $1 ]; then
+		debug_info "There is not a '$param_file', now creat it"
+		touch $1
+		retflag=1
+	fi
+
 	local param_file=$1
 	local param_key=$2
 	local param_value=$3
 
-	#TODO 格式化太不理智了，应该遇到#就过滤掉，然后grep查找key， 不需要是开头以排除空格的情况。format_local_file $param_file
-	if grep -r ^$param_key $param_file 2>&1 1>/dev/null; then
-		sed -i '/^'$param_key'/s/\(.*\):=.*/\1:= '$param_value'/g' $param_file
-	else
-		debug_warn "Just add key-value, maybe not useful, Please check where it used"
+	#如果找不到以$param_key开头的行则认为不存在正在写入的key-value, 追加到文本尾, 并更新升级标志
+	if ! grep -r ^"$param_key" "$param_file"; then
 		add_prop="$param_key := $param_value"
-		echo $add_prop >> $param_file
+		echo "$add_prop" >> $param_file
+		retflag=1
+		debug_warn "Just add <$param_key, $param_value>, Please ensure it is useful"
+	else
+		#2>&1 1>/dev/null
+		#如果找到这样的关键字，则匹配后面的value如果不同则更新，并更新升级标志
+		file_value=$(grep -r ^"$param_key" "$param_file" | awk -F ':=' '{gsub(" |\t","",$2); print $2}')
+		if [[ x"$file_value" != x"$param_value" ]]; then
+			retflag=1
+			sed -i '/^'$param_key'/s/\(.*\):=.*/\1:= '$param_value'/g' $param_file
+		else
+			debug_info "same key-value, skip"
+		fi
 	fi
+
+	return $retflag
 }
 
 #############################################################################
@@ -75,7 +96,7 @@ function write_txt_file()
 
 #############################################################################
 #@PARAM: 1:path 文本以 # 作为注释， 以 空格 作为键和值的关系; 
-#			    XXX:支持key的value为单项或者两项如"POWER  WAKE"
+#			    FIXME:支持key的value为单项或者两项如"POWER  WAKE"
 #		 2:key
 #		 3:value
 #@FUNC : 用'key' '$param_key'    '$value'表示替换结果，如果不存在则追加 >>
@@ -172,6 +193,7 @@ function write_kl_file()
 
 #############################################################################
 #@PARAM: 1:path 文本以 ; 作为注释， 以 = 作为键和值的关系, 含有[]这种块区域划分
+#				FIXME:处理是以字面行为准，所以文本中不要有换行转义 "\"
 #		 2:section fex文件中括号内选项 boot_init_gpi
 #		 3:item 为item标签下的子项，如pin脚
 #		 4:value
@@ -219,7 +241,7 @@ function write_fex_file()
 			fi
 
 			#跳过 ; 开头的注释行
-			need_ignore=$(echo $line | awk 'BEGIN{ret=0} /^;/{ret=1} /^$/{ret=1} END{print ret}')
+			need_ignore=$(echo $line | awk 'BEGIN{ret=0} /^;/{ret=1} /^#/{ret=1} END{print ret}')
 			if [ $need_ignore -eq 1 ];then
 				continue
 			fi
@@ -270,7 +292,7 @@ function write_cfg_file()
 
 #测试用例
 ##!/bin/bash
-#set -x -e
+#set  -e
 #. ./include.sh
 #dump_map "local_org_map"
 #write_mk_file "./test_data/dolphin_cantv_h2.mk"  "PRODUCT_MANUFACTURER"  "忆典"
