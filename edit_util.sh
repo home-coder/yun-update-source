@@ -15,7 +15,8 @@ function format_local_file()
 
 #############################################################################
 #@PARAM: 1:path 文本以 # 作为注释， 以 := 作为键和值的关系
-#				FIXME: 文本中关键字如'PRODUCT_MANUFACTURER'必须在行首,前面不要有空格
+#				FIXME: 仅仅支持文本中关键字如'PRODUCT_MANUFACTURER'必须在行首,
+#					   前面不要有空格
 #		 2:key
 #		 3:value
 #@FUNC : 用 1:= $param_value表示替换结果, 如果不存在则追加 >>
@@ -24,8 +25,8 @@ function format_local_file()
 #############################################################################
 function write_mk_file() 
 {
-	debug_func "write_mk_file"
-	debug_info $*
+	debug_func "write_mk_file $*"
+
 	if [ $# -ne 3 ];then
 		debug_error "param is wrong, exit(-1)"
 		exit -1
@@ -34,7 +35,7 @@ function write_mk_file()
 	local retflag=0
 
 	if [ ! -f $1 ]; then
-		debug_info "There is not a '$param_file', now creat it"
+		debug_warn "There is not a file->'$1', now creat it"
 		touch $1
 		retflag=1
 	fi
@@ -48,7 +49,7 @@ function write_mk_file()
 		add_prop="$param_key := $param_value"
 		echo "$add_prop" >> $param_file
 		retflag=1
-		debug_warn "Just add <$param_key, $param_value>, Please ensure it is useful"
+		debug_warn "Add <$param_key, $param_value>, Please ensure it is useful"
 	else
 		#2>&1 1>/dev/null
 		#如果找到这样的关键字，则匹配后面的value如果不同则更新，并更新升级标志
@@ -56,6 +57,7 @@ function write_mk_file()
 		if [[ x"$file_value" != x"$param_value" ]]; then
 			retflag=1
 			sed -i '/^'$param_key'/s/\(.*\):=.*/\1:= '$param_value'/g' $param_file
+			debug_info "Change '$file_value' -> '$param_value'"
 		else
 			debug_info "same key-value, skip"
 		fi
@@ -70,33 +72,49 @@ function write_mk_file()
 #		 3:value
 #@FUNC : 用'$param_key'='$param_value'表示替换结果，如果不存在则追加 >>
 #
-#RET   : @1->更新 @0->无需更新 TODO
+#RET   : @1->更新 @0->无需更新
 #############################################################################
 function write_txt_file()
 {
-	debug_func "write_txt_file"
-	debug_info $*
-	if [ ! -f $1 ] || [ $# -ne 3 ];then
+	debug_func "write_txt_file $*"
+
+	if [ $# -ne 3 ];then
 		debug_error "param is wrong, exit(-1)"
 		exit -1
 	fi
+
+	local retflag=0
+
+	if [ ! -f $1 ]; then
+		debug_warn "There is not a file->'$1', now creat it"
+		touch $1
+		retflag=1
+	else
+		format_local_file $1
+	fi
+
 	local param_file=$1
 	local param_key=$2
 	local param_value=$3
 
-	format_local_file $param_file
-	if grep -r ^$param_key $param_file 2>&1 1>/dev/null; then
-		sed -i '/^'$param_key='/s/.*/'$param_key'='$param_value',/g' $param_file
+	#如果找不到以$pkey_value开头的行则认为不存在正在写入的key-value, 追加到文本尾, 并更新升级标志
+	pkey_value="$param_key="$param_value,""
+	if ! grep -r ^"$pkey_value" "$param_file"; then
+		echo "$pkey_value" >> $param_file
+		retflag=1
+		debug_warn "Just add <$param_key, $param_value>, Please ensure it is useful"
 	else
-		debug_warn "Just add key-value, maybe not useful, Please check where it used"
-		add_prop="$param_key=$param_value,"
-		echo $add_prop >> $param_file
+		debug_info "same key-value, skip"
 	fi
+
+	#sed -i '/^'$param_key='/s/.*/'$param_key'='$param_value',/g' $param_file
+
+	return $retflag
 }
 
 #############################################################################
 #@PARAM: 1:path 文本以 # 作为注释， 以 空格 作为键和值的关系; 
-#			    FIXME:支持key的value为单项或者两项如"POWER  WAKE"
+#			    FIXME:仅仅支持key的value为单项或者两项如"POWER  WAKE"
 #		 2:key
 #		 3:value
 #@FUNC : 用'key' '$param_key'    '$value'表示替换结果，如果不存在则追加 >>
@@ -105,15 +123,17 @@ function write_txt_file()
 #############################################################################
 function write_kl_file()
 {
-	debug_func "write_kl_file"
-	debug_info $*
+	debug_func "write_kl_file $*"
+
 	if [ $# -lt 3 ];then
 		debug_error "param is wrong, exit(-1)"
 		exit -1
 	fi
 
 	local retflag=0
+
 	if [ ! -f $1 ]; then
+		debug_warn "There is not a file->'$1', now creat it"
 		touch $1
 		retflag=1
 	else
@@ -156,7 +176,7 @@ function write_kl_file()
 				debug_info "change "key $key_num  $key_value_1 $key_value_2" -->"key $key_num  $param_value_1""
 				retflag=1
 			else
-				debug_info "same code, skip 666"
+				debug_info "same code, skip"
 			fi
 		elif [[ $# -eq 4 ]]; then
 			param_value_1="$3"
@@ -203,9 +223,8 @@ function write_kl_file()
 #############################################################################
 function write_fex_file()
 {
-	debug_func "write_fex_file"
+	debug_func "write_fex_file $*"
 
-	debug_info $*
 	if [ ! -f $1 ] || [ $# -ne 4 ];then
 		debug_error "param is wrong, exit(-1)"
 		exit -1

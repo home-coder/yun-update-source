@@ -56,6 +56,11 @@ function load_local_config()
 	config_register_path
 }
 
+function call_version_manager()
+{
+	debug_func "call_version_manager, $1"
+}
+
 #
 #
 #@FUNC: 使用一次针对manifestmap整体的扫描确定更新情况，如果更新便直接更新。
@@ -66,10 +71,12 @@ function update_local_code()
 {
 	debug_func "update_local_code"
 	#检查是否需要更新，返回值: 1->更新并正常写入文件 0->已是最新版本无需更新
-	call_process_server
+	process_manifest_event
 	UPDATE_FLAG=$?
 	if [[ $UPDATE_FLAG -eq 0 ]]; then
 		debug_import "No changes, nothing to commit. It is latest Version"
+		call_version_manager "nochange"
+		#git reset 2>&1 1>/dev/null
 	else
 		debug_import "Some changes, It will update itself ..."
 		#XXX Beta版加下面的reset作为结果diff使用，Release 将去除该行
@@ -89,6 +96,7 @@ function wind_up_work()
 	debug_func "wind_up_work"
 	#如果编译返回值没有出错就提交代码
 	#如果出错就git reset
+	call_version_manager "changed"
 }
 
 function common_main()

@@ -2,14 +2,15 @@
 # process_server.sh 事件处理方法
 #
 
-#
+#############################################################################
 #所有平台都有external_product.txt文件，文件内容特殊 5个字段有顺序，特殊处理
 #inside_model=PRODUCT_MANUFACTURER=product_company=product_hotline=product_email
 #
 #@RET :@1->更新并正常写入文件 @0->已是最新版本无需更新
 #
 #XXX:此方法是在文档中明确说明各个字段为必填选项情况下成立, 而且txt中的顺序不变的情况。这是external_product.txt文件设计的缺陷
-#
+#	 如果txt的字段增加或者顺序有变，将external_product数组修改即可
+#############################################################################
 function process_external_product()
 {
 	debug_func "process_external_product"
@@ -19,13 +20,16 @@ function process_external_product()
 	#根据内部机型属性从manifest获取对应的键值
 	local key_index="inside_model"
 	local key_tmp=$(awk -v var="$key_index" '($2==var){print $1}' $DEVICE_REGISTER_PATH)
-	local inside_model_value=${manifestmap["$key_tmp"]}
-	if [ -z "$inside_model_value" ]; then
+	local key=${manifestmap["$key_tmp"]}
+	if [ -z "$key" ]; then
 		debug_error "not exsit 'inside_model'...please ask manifest"
 		exit -1
 	fi
 
-	local external_product_file=$(awk -v mindex="$key_index" '($2==mindex){print $3}' $DEVICE_REGISTER_PATH)
+	local path=$(awk -v mindex="$key_index" '($2==mindex){print $3}' $DEVICE_REGISTER_PATH)
+	if [[ -f "$path" ]]; then
+		debug_warn "the file->$path is invalid"
+	fi
 
 	#取第一个字段在manifest查询到的value做为key, 其余字段在manifest中的查询结果拼接后作为为value
 	#两个for，一个是先找到manifest定义的字段，er个然后通过该字段找到对应的value，并使用 = 拼接成一个value
@@ -43,10 +47,10 @@ function process_external_product()
 	for var in "${external_product_tmp[@]}"; do
 		if [[ -n "$var" ]]; then
 			if [[ $first -eq 1 ]]; then
-				local use_var=${manifestmap["$var"]}
+				local value=${manifestmap["$var"]}
 				first=0
 			else
-				use_var="${use_var}=${manifestmap["$var"]}"
+				value="${value}=${manifestmap["$var"]}"
 			fi
 		else
 			debug_error "is null ?! kidding me ? This is a must write data, please ask manifest"
@@ -55,20 +59,23 @@ function process_external_product()
 	done
 
 	local retep=0
-	write_txt_file "$external_product_file" "$inside_model_value" "$use_var"
+	write_txt_file "$path" "$key" "$value"
 	retep=$?
-	[ $retep -eq 1 ] && git add $path || git checkout $path 2>&1 1>/dev/null
+	if [[ -f "$path" ]]; then
+		[ $retep -eq 1 ] && git add $path || git checkout $path 2>&1 1>/dev/null
+	fi
 
 	return $retep
 }
 
-#
+#############################################################################
 #@PARAM: TODO
 #
+#############################################################################
 function process_keyboard_layout()
 {
-	debug_func "process_keyboard_layout"
-	debug_info $*
+	debug_func "process_keyboard_layout $*"
+
 	if [ -z $1 ] || [ $# -ne 2 ];then
 		debug_error "param is wrong, exit(-1)"
 		exit -1
@@ -101,16 +108,16 @@ function process_keyboard_layout()
 	return $retkl
 }
 
-#
+#############################################################################
 #@RET  :@1->更新并正常写入文件 @0->已是最新版本无需更新  @出错处理:直接exit -1退出当前shell进程
 #@FUNC :两点-> 1.检测本地原始配置是否需要更新,满足更新条件则写入文件；2.修改后的本地配置和manifest中的是否达成一致
 #
 #处理流程 TODO
 #
-#
-function call_process_server()
+#############################################################################
+function process_manifest_event()
 {
-	debug_func "call_process_server    >>>>>"
+	debug_func "process_manifest_event    >>>>>"
 
 	if [[ ! -f "$DEVICE_REGISTER_PATH" ]]; then
 		debug_error "$DEVICE_REGISTER_PATH is not exsit, please run 'config_register_path' first, exit (-1)"
@@ -119,7 +126,7 @@ function call_process_server()
 
 
 
-	##################################################################################################################################################
+	#************************************************************************************************************************************************#
 	#要兼容一些特殊情况   ：1.特殊属性的特殊处理   :如external_product.txt文件内容的格式定义的很独特，特殊处理
 	#					    2.不同平台下的特殊处理 :如红外遥控配置的kl文件的命名方式有不同,有些兼容android通用平台，有些平台厂商有自定义的命名处理规则
 	#						3.等待以后遇到添加
@@ -127,13 +134,13 @@ function call_process_server()
 	#其它共性情况统一处理  :如mk文件的操作等是具有简单的key-value对应填写关系的
 	#
 	#另外注意返回值的判定  :bash 不支持位运算,仅支持逻辑运算; 此处使用0+0+0+0==0方式判定最后的累计结果
-	##################################################################################################################################################
+	#************************************************************************************************************************************************#
 
 
 
 	local retflag=0
 
-##---external product----#
+##---1. external product----#
 	process_external_product
 	let retflag=retflag+$?
 
@@ -154,7 +161,7 @@ function call_process_server()
 			debug_warn "Not yet register this '$key' in 'DEVICE_REGISTER_PATH'"
 		fi
 
-##---keyboad layout---#
+##---2. keyboad layout---#
 		if [[ "$prop" == "customer_code" ]]; then
 			continue
 		elif [[ "${key:0:2}" == "0x" ]]; then
@@ -165,7 +172,7 @@ function call_process_server()
 			continue
 		fi
 
-##---如果还有例外事件，add the Exception Event Function here---#
+##---3. 如果还有例外事件 XXX，add the Exception Event Function Here, and add a black list Below---#
 
 
 #---black list---#
@@ -179,7 +186,7 @@ function call_process_server()
 			continue
 		fi
 
-##---normal event---#
+##---n. normal event---#
 		local path=$(echo "$pp" |awk '{print $2}')
 		local value=${manifestmap["$key"]}
 		debug_import "$key", "$prop, $path",  "是[ ${path##*.} ]类型文件"
@@ -201,19 +208,18 @@ function call_process_server()
 		if [[ -f "$path" ]]; then
 			[ $retnormal -eq 1 ] && git add $path || git checkout $path
 		else
-			debug_warn "the '$key' de path->$path is not exsit"
+			debug_warn "the '$key'\`s path->$path is not exsit"
 		fi
 
 		let retflag=retflag+$retnormal
 	done
 
-	debug_func "call_process_server    <<<<<"
+	debug_func "process_manifest_event    <<<<<"
 
 	[ $retflag -eq 0 ] && return 0 || return 1
 }
-
 #测试用例
 ##!/bin/bash
 #. ./include.sh
 #. ./edit_util.sh
-#call_process_server
+#process_manifest_event
