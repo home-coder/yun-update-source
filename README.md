@@ -5,18 +5,18 @@ yun-update-source
 
 ##################################################整体说明###############################################################################
 .
-├── chat_util.sh				用于与前端交互
+├── chat_util.sh				       用于与前端交互
 ├── common.sh					云编译脚本主函数框架
-├── custom_branch_platform			客户标识  分支  硬件平台对应关系表
-├── edit_util.sh				文本编辑工具类
+├── edit_util.sh				       文本编辑工具类
 ├── include.sh					云编译必要的环境初始化依赖
 ├── manifest.prot				前端配置好的云编译配置項
-├── process_server.sh				具体处理manifest.prot各项配置項事物的服务
+├── process_server.sh			具体处理manifest.prot各项配置項事物的服务
 ├── README.md					使用说明
 └── test_data					脚本临时测试使用数据
-
-1 directory, 8 files
-
+├── r-config
+│   ├── custom_branch_device         客户标识  分支  硬件平台对应关系表
+│   ├── dolphin-cantv-h2_register    属性注册表
+│   └── mstar638_register
 
 
 
@@ -62,5 +62,4 @@ http://man.linuxde.net/sed
 --
 http://www.blogjava.net/jasmine214--love/archive/2011/10/12/361040.html
 
-###################################################一些说明##############################################################################
 

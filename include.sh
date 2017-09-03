@@ -2,7 +2,7 @@
 # include.sh 环境依赖项
 #
 
-#XXX 所有的变量不使用export关键字，防止多线程调用shell时引起的环境变量污染
+#XXX ?? 所有的变量不使用export关键字，防止多线程调用shell时引起的环境变量污染
 
 SCRIPT_PWD=`pwd`
 
