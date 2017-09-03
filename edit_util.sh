@@ -301,7 +301,7 @@ function write_fex_file()
 #@PARAM: 1:path
 #		 2:key 
 #		 4:value
-#@FUNC : 
+#@FUNC : TODO
 #############################################################################
 function write_cfg_file()
 {
