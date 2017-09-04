@@ -305,11 +305,48 @@ function write_fex_file()
 	return $retflag
 }
 
+#
+#@FUNC: 内部方法，处理envcfg文件
+#
+function inner_process_envcfg()
+{
+	local param_file=$1
+	local param_key=$2
+	local param_value=$3
+
+	local nandkv=""
+	local mmckv=""
+
+	local retflag=0
+
+	#判断这两个字段是用来确认是不是env.cfg文件
+	nandarg=$(grep -r ^"setargs_nand" "$param_file")
+	mmcarg=$(grep -r ^"setargs_nand" "$param_file")
+
+	#env.cfg文件特殊的要求
+	nandkv=$(grep -r ^"setargs_nand" "$param_file"|grep "$param_key=\${${param_key}}")
+	mmckv=$(grep -r ^"setargs_mmc" "$param_file"|grep "$param_key=\${${param_key}}")
+	if [[ -z "$nandkv" && -n "$nandarg" ]] ; then
+		retflag=1
+		#行尾添加
+		sed -i '/^setargs_nand/s/$/& '$param_key=\${$param_key}'/g' $param_file 
+		debug_warn "Add nand<$param_key=\${$param_key}>, Please ensure it is useful"
+	fi
+	if [[ -z "$mmckv" && -n "$mmcarg" ]]; then
+		retflag=1
+		#行尾添加
+		sed -i '/^setargs_mmc/s/$/& '$param_key=\${$param_key}'/g' $param_file 
+		debug_warn "Add mmc<$param_key=\${$param_key}>, Please ensure it is useful"
+	fi
+
+	return $retflag
+}
+
 #############################################################################
 #@PARAM: 1:path, cfg类型的文件=为键值关联，空格为串分割。参见u-boot的解析
 #		 2:key 
 #		 4:value
-#@FUNC : 根据函数的参数来设置cfg内容，包括修改添加
+#@FUNC : 根据函数的参数来设置cfg内容，包括修改添加. XXX:无需优化这个方法的逻辑
 #@RET  : @1->更新 @0->无需更新
 #############################################################################
 function write_cfg_file()
@@ -335,9 +372,6 @@ function write_cfg_file()
 	local param_key=$2
 	local param_value=$3
 
-	local nandkv=""
-	local mmckv=""
-
 	#如果找不到以$pkey_value开头的行并且也不是$param_key=开头则认为不存在正在写入的key-value,  并更新升级标志
 	pkey_value="$param_key="$param_value""
 	if ! grep -r ^"$pkey_value" "$param_file" ; then
@@ -354,27 +388,21 @@ function write_cfg_file()
 
 
 		#*************************************************************************
-		#对cfg文件中是否为env.cfg和是的情况下如何进行替换或添加提供方法
+		#对cfg文件中是否为env.cfg和是的情况下如何进行替换或添加提供方法, 不处理返回值
 		#*************************************************************************
-		nandkv=$(grep -r ^"setargs_nand" "$param_file"|grep "$param_key=\${${param_key}}")
-		mmckv=$(grep -r ^"setargs_mmc" "$param_file"|grep "$param_key=\${${param_key}}")
-		if [[ -z "$nandkv" ]] ; then
-			retflag=1
-			#行尾添加
-			sed -i '/^setargs_nand/s/$/& '$param_key=\${$param_key}'/g' $param_file 
-			debug_error "Add nand<$param_key=\${$param_key}>, Please ensure it is useful"
-		fi
-		if [[ -z "$mmckv" ]]; then
-			retflag=1
-			#行尾添加
-			sed -i '/^setargs_mmc/s/$/& '$param_key=\${$param_key}'/g' $param_file 
-			debug_error "Add mmc<$param_key=\${$param_key}>, Please ensure it is useful"
-		fi
+		inner_process_envcfg "$param_file" "$param_key" "$param_value"
 	else
-		debug_info "same key-value, skip"
+		#*************************************************************************
+		#对cfg文件中是否为env.cfg和是的情况下如何进行替换或添加提供方法, 并接收处理返回值
+		#*************************************************************************
+		inner_process_envcfg "$param_file" "$param_key" "$param_value"
+		retflag=$?
 	fi
 
 	#sed -i '/^'$param_key'.*/c'$pkey_value'' $param_file 
+	if [[ $retflag -eq 0 ]]; then
+		debug_info "same key-value, skip"
+	fi
 
 	return $retflag
 }
