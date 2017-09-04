@@ -96,7 +96,7 @@ function call_jeckens_work()
 	#XXX Beta版添加一个build.sh方式来编译
 	if [[ $UPDATE_FLAG -eq 1 ]]; then
 		cd "$WORKSPACE/Allwinner-h2/scripts/"
-		i=5 
+		i=9 
 		while(($i >= 0)); do
 			echo -ne  "\033[41;33m马上就要编译了 $i...\033[0m\r"
 			sleep 1
@@ -104,7 +104,7 @@ function call_jeckens_work()
 		done
 		echo -e ""
 
-		./build
+		./build.sh
 	fi
 }
 
