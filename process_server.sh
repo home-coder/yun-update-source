@@ -64,7 +64,9 @@ function process_external_product()
 	write_txt_file "$path" "$key" "$value"
 	retep=$?
 	if [[ -f "$path" ]]; then
-		[ $retep -eq 1 ] && git add $path || git checkout $path 2>&1 1>/dev/null
+		#TODO 切换路径到仓
+		#FIXME[ $retep -eq 1 ] && git add $path || git checkout $path 2>&1 1>/dev/null
+		debug_info "git add or checkout is done"
 	fi
 
 	return $retep
@@ -105,7 +107,9 @@ function process_keyboard_layout()
 	#XXX 注意此处不将$value加""是特意安排的，目的是传入时将字段的个数完全暴露而不当做一个整体, 因为有的键码值是多项式
 	write_kl_file "$path" "$key" $value
 	retkl=$?
-	[ $retkl -eq 1 ] && git add $path || git checkout $path 
+	#TODO 切换路径到仓
+	#FIXME[ $retkl -eq 1 ] && git add $path || git checkout $path 
+	debug_info "git add or checkout is done"
 
 	return $retkl
 }
@@ -211,7 +215,9 @@ function process_manifest_event()
 
 		retnormal=$?
 		if [[ -f "$path" ]]; then
-			[ $retnormal -eq 1 ] && git add $path || git checkout $path
+			#TODO 切换路径到仓
+			#FIXME [ $retnormal -eq 1 ] && git add $path || git checkout $path
+			debug_info "git add or checkout is done"
 		else
 			debug_warn "the '$key'\`s path->$path is not exsit"
 		fi

@@ -1,15 +1,15 @@
 #manifest所有字段                 本地对应字段                    本地修改地址            隐含出现地址
 
-AAA							 inside_model                     ./test_data/env.cfg    ./test_data/external_product.txt
-BBB							 launcher_channelid					./test_data/env.cfg
+AAA							 inside_model                     /home/jiangxiujie/h2222/lichee/tools/pack/chips/sun8iw7p1/configs/default/env.cfg    /home/jiangxiujie/h2222/Allwinner-h2/device/softwinner/dolphin-cantv-h2/external_product.txt
+BBB							 launcher_channelid				/home/jiangxiujie/h2222/lichee/tools/pack/chips/sun8iw7p1/configs/default/env.cfg
 CCC							 product_company                  xxx
 DDD							  product_hotline                 xxx
 EEE							 product_email                    xxx
-FFF							 PRODUCT_MANUFACTURER             ./test_data/dolphin_cantv_h2.mk
-GGG							customer_code                     ./test_data
-HHH							gpio1                             ./test_data/sys_config.fex
+FFF							 PRODUCT_MANUFACTURER             /home/jiangxiujie/h2222/Allwinner-h2/device/softwinner/dolphin-cantv-h2/dolphin_cantv_h2.mk
+GGG							customer_code                     /home/jiangxiujie/h2222/Allwinner-h2/device/softwinner/dolphin-cantv-h2/configs
+HHH							gpio1                             /home/jiangxiujie/h2222/lichee/tools/pack/chips/sun8iw7p1/configs/dolphin-p2/sys_config.fex
 JJJ
-KKK                         business_model                    ./test_data/env.cfg
-LLL                         fake_flash                        ./test_data/env.cfg
+KKK                         business_model                    /home/jiangxiujie/h2222/lichee/tools/pack/chips/sun8iw7p1/configs/default/env.cfg
+LLL                         fake_flash                        /home/jiangxiujie/h2222/lichee/tools/pack/chips/sun8iw7p1/configs/default/env.cfg
 
 #keyboad layout

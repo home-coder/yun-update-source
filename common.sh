@@ -58,11 +58,12 @@ function load_local_config()
 
 #
 #
-#TODO
+#TODO 返回老版本，通过chat_util通知前端
 #
 function call_version_manager()
 {
 	debug_func "call_version_manager, $1"
+	#TODO
 }
 
 #
@@ -92,6 +93,19 @@ function update_local_code()
 function call_jeckens_work()
 {
 	debug_func "call_jeckens_work"
+	#XXX Beta版添加一个build.sh方式来编译
+	if [[ $UPDATE_FLAG -eq 1 ]]; then
+		cd "$WORKSPACE/Allwinner-h2/scripts/"
+		i=5 
+		while(($i >= 0)); do
+			echo -ne  "\033[41;33m马上就要编译了 $i...\033[0m\r"
+			sleep 1
+			let i=i-1
+		done
+		echo -e ""
+
+		./build
+	fi
 }
 
 #TODO 去include.sh中实现UPDATE_FLAG整个代码环境的更新提交工作

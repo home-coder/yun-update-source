@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+<remote name="allwinner-h2"  fetch="ssh://172.16.11.8:29418" review="review.source.android.com" />
+<default revision="DYOS_unify_20170224" remote="allwinner-h2" sync-j = "4" />
+<project path="Allwinner-h2" name="CAN-BOX/allwinner-h2-box/Allwinner-h2" />
+<project path="lichee" name="CAN-BOX/allwinner-h2-box/lichee" />
+<project path="Allwinner-h2/cantv" name = "Common/cantv" />
+<project path="Allwinner-h2/packages/apps/CanPackageInstaller" name="CAN-APP/Packageinstaller" revision="v4.4"/>
+ </manifest>

@@ -107,9 +107,18 @@ function get_branch_and_device()
 	fi
 }
 
+#
+#
+#TODO
+#
 function git_checkout_branch()
 {
 	debug_warn "git_checkout_branch"
+	#XXX 本地测试,假设WORKSPACE=/home/jiangxiujie/h2222
+	WORKSPACE="/home/jiangxiujie/h2222"
+	while read line; do
+		cd "$WORKSPACE/$line" && git checkout $CURENT_BRANCH
+	done < "$WORKSPACE/.repo/project.list"
 }
 
 function config_register_path()
