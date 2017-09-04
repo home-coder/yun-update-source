@@ -26,7 +26,7 @@ function process_external_product()
 		exit -1
 	fi
 
-	local path=$(awk -v mindex="$key_index" '($2==mindex){print $3}' $DEVICE_REGISTER_PATH)
+	local path=$(awk -v mindex="$key_index" '($2==mindex){print $4}' $DEVICE_REGISTER_PATH)
 	if [[ -f "$path" ]]; then
 		debug_warn "the file->$path is invalid"
 	fi
@@ -150,17 +150,17 @@ function process_manifest_event()
 	local key
 	for key in ${!manifestmap[@]}; do
 		#awk -v tmp="$key" '{print $0}' $DEVICE_REGISTER_PATH
-		#prop 和 path是本地注册表中的属性和修改路径; prop以后将作为key，而value需要从manifest中获取
+		#prop 和 path是本地注册表中的属性和修改路径; prop以后将作为本地文件的参数 key，value需要从manifest中获取
 
+		local prop=""
 		local pp=$(awk -v tmp="$key" '($1==tmp){print $2,$3}' $DEVICE_REGISTER_PATH)
 		if [[ -n "$pp" ]]; then
-			local prop=$(echo $pp |awk '{print $1}')
+			prop=$(echo $pp |awk '{print $1}')
 		elif [[ "${key:0:2}" == "0x" ]]; then
-			#下面操作将0x开头的键码事件不作为普通事件封装,并注意变量的静态性,赋值为空目的是洗掉上一次的值
-			#TODO 是不是要 continue
-			prop=""
+			prop=""	
 		else
 			debug_warn "Not yet register this '$key' in 'DEVICE_REGISTER_PATH'"
+			continue
 		fi
 
 ##---2. keyboad layout---#
@@ -174,14 +174,16 @@ function process_manifest_event()
 			continue
 		fi
 
-##---3. 如果还有例外事件 XXX，add the Exception Event Function Here, and add a black list Below---#
+##---XXX. 如果还有例外事件 XXX，add the Exception Event Function Here, and add a black list Below---#
 
 
 #---black list---#
-		if [[  "$prop" == "inside_model"
+		if [[  
+			#注释掉是因为这个字段出现在两处external_product.txt 和 env.cfg而要保留后者
+			#"$prop" == "inside_model"
 			#注释掉是因为这个字段在另一处即device下的mk文件中有用到,所以不加入blacklist
 			#|| "$prop" == "PRODUCT_MANUFACTURER"
-			|| "$prop" == "product_company"
+			"$prop" == "product_company"
 			|| "$prop" == "product_hotline"
 			|| "$prop" == "product_email"  ]]; then
 
@@ -191,6 +193,7 @@ function process_manifest_event()
 ##---n. normal event---#
 		local path=$(echo "$pp" |awk '{print $2}')
 		local value=${manifestmap["$key"]}
+		
 		debug_import "$key", "$prop, $path",  "是[ ${path##*.} ]类型文件"
 		case ${path##*.} in
 			"mk")

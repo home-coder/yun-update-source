@@ -100,6 +100,7 @@ function write_txt_file()
 	#如果找不到以$pkey_value开头的行则认为不存在正在写入的key-value, 追加到文本尾, 并更新升级标志
 	pkey_value="$param_key="$param_value,""
 	if ! grep -r ^"$pkey_value" "$param_file"; then
+		sed -i '/^'$param_key'.*/d' $param_file 
 		echo "$pkey_value" >> $param_file
 		retflag=1
 		debug_warn "Just add <$param_key, $param_value>, Please ensure it is useful"
@@ -219,7 +220,7 @@ function write_kl_file()
 #		 4:value
 #@FUNC : 
 
-#RET   :TODO
+#RET   :@1->更新 @0->无需更新
 #############################################################################
 function write_fex_file()
 {
@@ -233,6 +234,8 @@ function write_fex_file()
 	local param_section=$2
 	local param_item=$3
 	local param_value=$4
+
+	local retflag=0
 
 	#awk -F '=' '/\['${param_section}'\]/{a=1 gsub(" |\t","",$1)} (a==1 && "'${param_item}'"==$1){gsub($2,"'${param_value}'"); a=0} {print $0 > "'${param_file}'"}' ${param_file}
 
@@ -283,35 +286,103 @@ function write_fex_file()
 
 	#业务逻辑
 	if [[ ($has_section -ne 0)&&($has_item -ne 0)&&("$value"x != "$param_value"x) ]]; then
+		debug_info "change old key-value -->  $param_item = $param_value"
+		retflag=1
 		sed -i "${num}s/$value/$param_value/" $param_file
-		debug_import "$num: $param_item = $param_value"
 	elif [[ ($has_section -ne 0)&&($has_item -ne 0)&&("$value"x == "$param_value"x) ]]; then
-		debug_warn "[Do nothing]!! But Never go here, We filter and ignore the same key-value in process_server"
+		debug_info "same key-value, skip"
 	elif [[ ($has_section -ne 0)&&($has_item -eq 0) ]]; then
-		debug_warn "just add item, Please check your source code use or not use the item"
+		debug_warn "Add item, Please check your source code use or not use the item"
+		retflag=1
 		sed -i "/^\[${param_section}\]/a\\$param_item = $param_value" $param_file
 	else
-		debug_warn "the valid item<$param_item> is not exsit, it will just add but unuseful"
+		debug_warn "Add section and item, it will just add but unuseful"
+		retflag=1
 		echo "[${param_section}]" >> $param_file
 		echo "$param_item = $param_value" >> $param_file
 	fi
+
+	return $retflag
 }
 
 #############################################################################
-#@PARAM: 1:path
+#@PARAM: 1:path, cfg类型的文件=为键值关联，空格为串分割。参见u-boot的解析
 #		 2:key 
 #		 4:value
-#@FUNC : TODO
+#@FUNC : 根据函数的参数来设置cfg内容，包括修改添加
+#@RET  : @1->更新 @0->无需更新
 #############################################################################
 function write_cfg_file()
 {
-	debug_func "write_cfg_file"
+	debug_func "write_cfg_file $*"
+
+	if [ $# -ne 3 ];then
+		debug_error "param is wrong, exit(-1)"
+		exit -1
+	fi
+
+	local retflag=0
+
+	if [ ! -f $1 ]; then
+		debug_warn "There is not a file->'$1', now creat it"
+		touch $1
+		retflag=1
+	else
+		format_local_file $1
+	fi
+
+	local param_file=$1
+	local param_key=$2
+	local param_value=$3
+
+	local nandkv=""
+	local mmckv=""
+
+	#如果找不到以$pkey_value开头的行并且也不是$param_key=开头则认为不存在正在写入的key-value,  并更新升级标志
+	pkey_value="$param_key="$param_value""
+	if ! grep -r ^"$pkey_value" "$param_file" ; then
+		retflag=1
+		if ! grep -r ^"$param_key=" "$param_file" ; then
+			#如果key不存在则在文本顶行追加
+			sed -i '1i\'$pkey_value'' $param_file
+			debug_warn "Add <$param_key, $param_value>, Please ensure it is useful"
+		else
+			#如果存在key存在，而最外层if得知value不同，则整行替换
+			sed -i '/^'$param_key'.*/c'$pkey_value'' $param_file 
+			debug_info "Change tobe '$pkey_value'"
+		fi
+
+
+		#*************************************************************************
+		#对cfg文件中是否为env.cfg和是的情况下如何进行替换或添加提供方法
+		#*************************************************************************
+		nandkv=$(grep -r ^"setargs_nand" "$param_file"|grep "$param_key=\${${param_key}}")
+		mmckv=$(grep -r ^"setargs_mmc" "$param_file"|grep "$param_key=\${${param_key}}")
+		if [[ -z "$nandkv" ]] ; then
+			retflag=1
+			#行尾添加
+			sed -i '/^setargs_nand/s/$/& '$param_key=\${$param_key}'/g' $param_file 
+			debug_error "Add nand<$param_key=\${$param_key}>, Please ensure it is useful"
+		fi
+		if [[ -z "$mmckv" ]]; then
+			retflag=1
+			#行尾添加
+			sed -i '/^setargs_mmc/s/$/& '$param_key=\${$param_key}'/g' $param_file 
+			debug_error "Add mmc<$param_key=\${$param_key}>, Please ensure it is useful"
+		fi
+	else
+		debug_info "same key-value, skip"
+	fi
+
+	#sed -i '/^'$param_key'.*/c'$pkey_value'' $param_file 
+
+	return $retflag
 }
 
 
 #测试用例
 ##!/bin/bash
-#set  -e
+#set  -x
 #. ./include.sh
 #dump_map "local_org_map"
 #write_mk_file "./test_data/dolphin_cantv_h2.mk"  "PRODUCT_MANUFACTURER"  "忆典"

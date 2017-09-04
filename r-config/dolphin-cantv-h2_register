@@ -1,6 +1,6 @@
-#manifest所有字段                 本地对应字段                    本地修改地址
+#manifest所有字段                 本地对应字段                    本地修改地址            隐含出现地址
 
-AAA							 inside_model                     ./test_data/external_product.txt
+AAA							 inside_model                     ./test_data/env.cfg    ./test_data/external_product.txt
 BBB							 launcher_channelid					xxx
 CCC							 product_company                  xxx
 DDD							  product_hotline                 xxx

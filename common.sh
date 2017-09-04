@@ -120,6 +120,6 @@ function common_main()
 	wind_up_work
 }
 
-debug_func "Start ..........................................................."
+debug_func "Start . . ."
 common_main $1
-debug_func "End=$? .........................................................."
+debug_func "End=$? . . ."
