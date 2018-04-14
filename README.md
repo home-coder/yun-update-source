@@ -13,7 +13,7 @@ yun-update-source
 - **process_server.sh**			具体处理manifest.prot各项配置項事物的服务
 - **README.md**					使用说明
 - **test_data**					脚本临时测试使用数据
-- **r-config **
+- **r-config**
   * **custom_branch_device**         客户标识  分支  硬件平台对应关系表
   * **dolphin-cantv-h2_register**    属性注册表
   * **mstar638_register**
