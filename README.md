@@ -5,8 +5,8 @@ yun-update-source
 
 ######  整体说明
 .
-- ** chat_util.sh **				       用于与前端交互
-- ** common.sh **					云编译脚本主函数框架
+- **chat_util.sh**				       用于与前端交互
+- **common.sh**					云编译脚本主函数框架
 - ** edit_util.sh **				       文本编辑工具类
 - ** include.sh **					云编译必要的环境初始化依赖
 - ** manifest.prot	**			前端配置好的云编译配置項
